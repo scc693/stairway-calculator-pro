@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stairway Calculator Pro — Canvas Prototype</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#151821">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<style>
+  :root{
+    --bg:#0f1115;--panel:#151821;--ink:#e7ecf3;--muted:#9aa6b2;--accent:#5fb3ff;
+    --warn:#ffb454;--bad:#ff6b6b;--good:#2ecc71;--grid:#2a2f3a;--measure:#8ad;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);
+    background:linear-gradient(180deg,#0e1118,#0b0e14 35%,#0e1118);}
+  .wrap{display:grid;grid-template-columns:1fr;gap:12px;padding:12px;max-width:1200px;margin:0 auto;}
+  @media(min-width:900px){.wrap{grid-template-columns:400px 1fr;gap:16px;padding:16px}}
+  .card{background:var(--panel);border:1px solid #1e2330;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
+  .card h2{margin:0;padding:14px 16px 6px;font-size:1.05rem;color:#cfe3ff;letter-spacing:.2px}
+  .card .body{padding:12px 16px 16px}
+  form{display:grid;gap:10px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field{display:grid;gap:6px}
+  label{font-size:.9rem;color:var(--muted)}
+  input[type="number"]{appearance:textfield;width:100%;padding:10px 12px;border-radius:8px;border:1px solid #2a3140;background:#0e121a;color:var(--ink);font-size:1rem}
+  input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:.92rem}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:-2px}
+  .metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+  .metric{background:#0e121a;border:1px dashed #2a3140;border-radius:8px;padding:8px 10px;font-size:.92rem;line-height:1.25}
+  .metric strong{display:block;font-size:.95rem;color:#dce8ff}
+  .badge{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border-radius:999px;font-size:.78rem;background:#111623;border:1px solid #243049;color:var(--muted)}
+  .badge.ok{color:#b8f7c9;border-color:#1d5432;background:#0b1a11}
+  .badge.bad{color:#ffd6d6;border-color:#4b1d27;background:#1a0c10}
+  .canvas-wrap{display:grid;gap:8px;padding:10px 12px 14px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:0 4px}
+  .btn{border:1px solid #2a3140;background:#0e121a;color:var(--ink);padding:8px 10px;border-radius:8px;font-size:.9rem;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  canvas{width:100%;height:auto;display:block;background:radial-gradient(1200px 400px at 10% 0%,#0f1420 0,#0a0d14 60%,#0a0d14 100%);border-radius:10px;border:1px solid #1f2431}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:#9aa6b2;padding:0 4px}
+  .legend span{display:inline-flex;gap:6px;align-items:center}
+  .swatch{width:14px;height:4px;border-radius:2px;display:inline-block;background:var(--accent)}
+  .swatch.run{background:#7cd67c}.swatch.rise{background:#ff9c9c}.swatch.square{background:#ffd36e}.swatch.stringer{background:#8ad}.swatch.dim{background:#c3d4ff}
+  details{background:#0e121a;border:1px solid #2a3140;border-radius:10px;padding:10px 12px}
+  details summary{cursor:pointer;font-weight:600;color:#cfe3ff;margin:-10px -12px 8px;padding:10px 12px}
+  .cutgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .table{max-height:240px;overflow:auto;border:1px solid #2a3140;border-radius:8px}
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  th,td{padding:6px 8px;border-bottom:1px solid #1f2431;text-align:right}
+  th{text-align:right;color:#cfe3ff;position:sticky;top:0;background:#121828}
+  td:first-child,th:first-child{text-align:left}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="card">
+    <h2>Inputs</h2>
+    <div class="body">
+      <form id="stairForm" novalidate>
+        <div class="grid-2">
+          <div class="field">
+            <label for="totalRise">Total Rise (in)</label>
+            <input id="totalRise" type="number" step="0.01" min="1" value="108" />
+          </div>
+          <div class="field">
+            <label for="treadDepth">Tread Depth (in)</label>
+            <input id="treadDepth" type="number" step="0.01" min="1" value="10.00" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="maxRiser">Max Riser Height (in)</label>
+            <input id="maxRiser" type="number" step="0.01" min="1" value="7.75" />
+            <div class="hint">IRC: riser ≤ 7.75"</div>
+          </div>
+          <div class="field">
+            <label for="stringers">Number of Stringers</label>
+            <input id="stringers" type="number" step="1" min="2" value="3" />
+            <div class="hint">Spacing guide assumes 36&quot; stair width (for now)</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="treadThick">Tread Thickness (in)</label>
+            <input id="treadThick" type="number" step="0.01" min="0" value="1.00" />
+          </div>
+          <div class="field">
+            <label for="topLandingThick">Top Landing Finish Thickness (in)</label>
+            <input id="topLandingThick" type="number" step="0.01" min="0" value="1.00" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="nosing">Tread Nosing (in)</label>
+            <input id="nosing" type="number" step="0.01" min="0" value="1.00" />
+          </div>
+          <div class="field">
+            <label for="kerf">Saw Kerf Allowance (in)</label>
+            <input id="kerf" type="number" step="0.001" min="0" value="0.125" />
+          </div>
+        </div>
+        <div class="row">
+          <label class="toggle" for="topTread">
+            <input id="topTread" type="checkbox" /> Count top tread (treads = risers)
+          </label>
+        </div>
+        <div class="metrics" id="metrics"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Stair Profile (to scale)</h2>
+    <div class="canvas-wrap">
+      <div class="toolbar">
+        <div class="left">
+          <span class="badge" id="ircRiser">Riser: —</span>
+          <span class="badge" id="ircTread">Tread: —</span>
+        </div>
+        <div class="right">
+          <button class="btn" id="pdfBtn" type="button">Export PDF</button>
+          <button class="btn" id="fitBtn" type="button">Fit to View</button>
+          <button class="btn" id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <canvas id="stairCanvas" width="1400" height="700" aria-label="Stair profile drawing"></canvas>
+
+      <div class="legend">
+        <span><i class="swatch stringer"></i> Stringer line</span>
+        <span><i class="swatch"></i> Treads & risers (finished)</span>
+        <span><i class="swatch square"></i> Framing square overlay</span>
+        <span><i class="swatch run"></i> Run dimension</span>
+        <span><i class="swatch rise"></i> Rise dimension</span>
+        <span><i class="swatch dim"></i> Dimension labels</span>
+      </div>
+
+      <div id="cutsOffsets" class="cutgrid" style="margin-top:12px"></div>
+
+      <details id="cutDetails" style="margin-top:12px">
+        <summary>Cut List (per stringer)</summary>
+        <div class="table" style="margin-top:8px">
+          <table id="cutTable">
+            <thead>
+              <tr><th>Step</th><th>Mark @</th><th>Cumulative Rise</th><th>Cumulative Run</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="hint" style="margin-top:6px">Marks are measured along the <b>stringer</b> from the bottom plumb cut position, one mark per notch.</div>
+      </details>
+    </div>
+  </section>
+</div>
+
+<script>
+/* Fraction formatting (1/16") */
+const FRACTION_DENOM = 16;
+function toFractionInches(valInches, denom = FRACTION_DENOM) {
+  const sign = valInches < 0 ? "-" : "";
+  valInches = Math.abs(valInches);
+  const whole = Math.floor(valInches + 1e-9);
+  const frac = valInches - whole;
+  let num = Math.round(frac * denom);
+  let d = denom;
+  if (num === denom) { return sign + (whole + 1) + '"'; }
+  const gcd = (a,b)=>b?gcd(b,a%b):a;
+  if (num !== 0) { const g = gcd(num, d); num/=g; d/=g; }
+  if (num === 0) return sign + whole + '"';
+  if (whole === 0) return sign + num + '/' + d + '"';
+  return sign + whole + ' ' + num + '/' + d + '"';
+}
+const fmt = toFractionInches;
+
+/* Config & DOM */
+const IRC = Object.freeze({ MAX_RISER_IN: 7.75, MIN_TREAD_IN: 10.0 });
+const DEFAULTS = Object.freeze({
+  totalRiseIn:108, treadDepthIn:10, maxRiserIn:7.75, stringers:3,
+  treadThickIn:1.00, topLandingThickIn:1.00, nosingIn:1.00, kerfIn:0.125,
+  topTread:false
+});
+const ASSUMED_STAIR_WIDTH_IN = 36;
+const el = {
+  form: document.getElementById('stairForm'),
+  totalRise: document.getElementById('totalRise'),
+  treadDepth: document.getElementById('treadDepth'),
+  maxRiser: document.getElementById('maxRiser'),
+  stringers: document.getElementById('stringers'),
+  treadThick: document.getElementById('treadThick'),
+  topLandingThick: document.getElementById('topLandingThick'),
+  nosing: document.getElementById('nosing'),
+  kerf: document.getElementById('kerf'),
+  topTread: document.getElementById('topTread'),
+  metrics: document.getElementById('metrics'),
+  ircRiser: document.getElementById('ircRiser'),
+  ircTread: document.getElementById('ircTread'),
+  canvas: document.getElementById('stairCanvas'),
+  fitBtn: document.getElementById('fitBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  pdfBtn: document.getElementById('pdfBtn'),
+  cutsOffsets: document.getElementById('cutsOffsets'),
+  cutTableBody: document.getElementById('cutTable').querySelector('tbody')
+};
+const ctx = el.canvas.getContext('2d');
+
+/* State & Utils */
+let state = {
+  input: {...DEFAULTS},
+  calc: null,
+  view: { paddingIn:8, scalePxPerIn:4, ox:60, oy: el.canvas.height - 40 }
+};
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const ceil=Math.ceil;
+const hypot=(x,y)=>Math.hypot(x,y);
+function debounce(fn,ms=80){ let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),ms);} }
+
+/* Core calc */
+function computeStair(i){
+  const effectiveRiseIn = Math.max(0.001, i.totalRiseIn - (i.topTread ? 0 : i.topLandingThickIn));
+  const risers = Math.max(1, ceil(effectiveRiseIn / i.maxRiserIn));
+  const finishedRiserIn = effectiveRiseIn / risers;
+  const treads = i.topTread ? risers : Math.max(0, risers - 1);
+  const totalRunCutIn = i.treadDepthIn * treads;
+  const totalRunFinishedIn = totalRunCutIn + (i.nosingIn * treads);
+  const stringerLenIn = hypot(totalRunCutIn, effectiveRiseIn);
+  const stepHypIn = hypot(i.treadDepthIn, finishedRiserIn);
+  const starterPlumbCutIn = finishedRiserIn;
+  const seatCutIn = i.treadDepthIn;
+  const finishPlumbCutIn = finishedRiserIn;
+  const blankLenRequiredIn = stringerLenIn + i.kerfIn*2;
+  let spacing=[];
+  const n = clamp(parseInt(i.stringers,10)||3,1,12);
+  if (n>=2){
+    const step=ASSUMED_STAIR_WIDTH_IN/(n-1);
+    for(let k=0;k<n;k++) spacing.push(k*step);
+  } else spacing.push(ASSUMED_STAIR_WIDTH_IN/2);
+  return {
+    ...i, effectiveRiseIn, risers, treads, finishedRiserIn,
+    totalRunCutIn, totalRunFinishedIn, stringerLenIn, stepHypIn,
+    starterPlumbCutIn, seatCutIn, finishPlumbCutIn, blankLenRequiredIn,
+    spacing
+  };
+}
+
+/* Render */
+function ircBadges(c){
+  const riserOK = c.finishedRiserIn <= IRC.MAX_RISER_IN + 1e-9;
+  const treadOK = c.treadDepthIn >= IRC.MIN_TREAD_IN - 1e-9;
+  el.ircRiser.textContent = `Riser: ${fmt(c.finishedRiserIn)} ${riserOK?'(OK)':'(Too tall)'}`;
+  el.ircRiser.className = `badge ${riserOK?'ok':'bad'}`;
+  el.ircTread.textContent = `Tread: ${fmt(c.treadDepthIn)} ${treadOK?'(OK)':'(Too shallow)'}`;
+  el.ircTread.className = `badge ${treadOK?'ok':'bad'}`;
+}
+function renderMetrics(c){
+  el.metrics.innerHTML = `
+    <div class="metric"><strong>Mode</strong>${c.topTread?'Top tread counted':'Landing is final tread'}</div>
+    <div class="metric"><strong>Total Rise (entered)</strong>${fmt(c.totalRiseIn)}</div>
+    <div class="metric"><strong>Effective Rise (layout)</strong>${fmt(c.effectiveRiseIn)}</div>
+    <div class="metric"><strong>Risers</strong>${c.risers}</div>
+    <div class="metric"><strong>Treads</strong>${c.treads}</div>
+    <div class="metric"><strong>Finished Riser</strong>${fmt(c.finishedRiserIn)}</div>
+    <div class="metric"><strong>Run per Tread (cut)</strong>${fmt(c.treadDepthIn)}</div>
+    <div class="metric"><strong>Nosing per Tread</strong>${fmt(c.nosingIn)}</div>
+    <div class="metric"><strong>Total Run (cut)</strong>${fmt(c.totalRunCutIn)}</div>
+    <div class="metric"><strong>Total Run (finished)</strong>${fmt(c.totalRunFinishedIn)}</div>
+    <div class="metric"><strong>Stringer Length</strong>${fmt(c.stringerLenIn)}</div>
+    <div class="metric"><strong>Step Hypotenuse</strong>${fmt(c.stepHypIn)}</div>
+  `;
+}
+function renderCutsOffsets(c){
+  el.cutsOffsets.innerHTML = `
+    <div class="metric"><strong>Starter Plumb Cut</strong>${fmt(c.starterPlumbCutIn)} (add kerf ${fmt(c.kerfIn)})</div>
+    <div class="metric"><strong>Seat Cut Length</strong>${fmt(c.seatCutIn)} (add kerf ${fmt(c.kerfIn)})</div>
+    <div class="metric"><strong>Finish Plumb Cut</strong>${fmt(c.finishPlumbCutIn)} (add kerf ${fmt(c.kerfIn)})</div>
+    <div class="metric"><strong>Stringer Blank Required</strong>${fmt(c.blankLenRequiredIn)}</div>
+  `;
+}
+function renderCutList(c){
+  el.cutTableBody.innerHTML = '';
+  for(let i=1;i<=c.treads;i++){
+    const mark = i * c.stepHypIn;
+    const cumRise = i * c.finishedRiserIn;
+    const cumRun  = i * c.treadDepthIn;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i}</td><td>${fmt(mark)}</td><td>${fmt(cumRise)}</td><td>${fmt(cumRun)}</td>`;
+    el.cutTableBody.appendChild(tr);
+  }
+}
+
+/* View & canvas */
+function computeScale(c){
+  const pad=state.view.paddingIn;
+  const wIn=c.totalRunCutIn + c.nosingIn*c.treads + 2*pad + 6;
+  const hIn=c.effectiveRiseIn + 2*pad + 16;
+  const sx=(el.canvas.width-80)/Math.max(wIn, 1);
+  const sy=(el.canvas.height-80)/Math.max(hIn, 1);
+  state.view.scalePxPerIn = Math.max(2, Math.min(sx, sy));
+  state.view.ox=60; state.view.oy=el.canvas.height-40;
+}
+function toPx(xIn,yIn){ const s=state.view.scalePxPerIn; return [state.view.ox + xIn*s, state.view.oy - yIn*s]; }
+function clearCanvas(){ ctx.clearRect(0,0,el.canvas.width,el.canvas.height); drawGrid(); }
+function drawGrid(){
+  const s=state.view.scalePxPerIn, step=s;
+  ctx.save(); ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--grid'); ctx.lineWidth=1;
+  for(let x = state.view.ox - step*100; x < el.canvas.width; x+=step){ ctx.beginPath(); ctx.moveTo(x,8); ctx.lineTo(x,el.canvas.height-8); ctx.stroke(); }
+  for(let y = state.view.oy + step*100; y > 0; y-=step){ ctx.beginPath(); ctx.moveTo(8,y); ctx.lineTo(el.canvas.width-8,y); ctx.stroke(); }
+  ctx.restore();
+}
+function lineInches(x1In,y1In,x2In,y2In){ const [x1,y1]=toPx(x1In,y1In), [x2,y2]=toPx(x2In,y2In); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+function drawArrow(x1,y1,x2,y2){
+  const ang=Math.atan2(y2-y1,x2-x1), len=8;
+  ctx.beginPath(); ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - len*Math.cos(ang - Math.PI/6), y2 - len*Math.sin(ang - Math.PI/6));
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - len*Math.cos(ang + Math.PI/6), y2 - len*Math.sin(ang + Math.PI/6));
+  ctx.stroke();
+}
+function labelDimMid(x1In,y1In,x2In,y2In,text,color='#c3d4ff'){
+  const [x1,y1]=toPx(x1In,y1In), [x2,y2]=toPx(x2In,y2In);
+  const mx=(x1+x2)/2, my=(y1+y2)/2;
+  ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  drawArrow(x1,y1,x2,y2); drawArrow(x2,y2,x1,y1);
+  ctx.font='12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(text, mx, my-6); ctx.restore();
+}
+function drawFramingSquare(runIn,riseIn){
+  const [x0,y0]=toPx(0,0), [xr,yr]=toPx(runIn,0), [xv,yv]=toPx(0,riseIn);
+  ctx.save(); ctx.strokeStyle='#ffd36e'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(xr,yr); ctx.lineTo(xr,yv); ctx.lineTo(x0,y0); ctx.stroke();
+  labelDimMid(0,0, runIn,0, `${fmt(runIn)} run`, '#7cd67c');
+  labelDimMid(runIn,0, runIn,riseIn, `${fmt(riseIn)} rise`, '#ff9c9c');
+  ctx.restore();
+}
+function drawSpacingGuide(c){
+  const bannerWIn=36, bannerHIn=6, baseYIn=c.effectiveRiseIn+8;
+  ctx.save(); ctx.strokeStyle='#a8b3c7'; ctx.lineWidth=1.5;
+  lineInches(0,baseYIn,bannerWIn,baseYIn);
+  lineInches(0,baseYIn+bannerHIn,bannerWIn,baseYIn+bannerHIn);
+  lineInches(0,baseYIn,0,baseYIn+bannerHIn);
+  lineInches(bannerWIn,baseYIn,bannerWIn,baseYIn+bannerHIn);
+  ctx.strokeStyle='#c3d4ff'; ctx.setLineDash([4,6]);
+  for(const pos of c.spacing){
+    lineInches(pos,baseYIn,pos,baseYIn+bannerHIn);
+    const [lx,ly]=toPx(pos,bannerHIn+baseYIn+.2);
+    ctx.setLineDash([]); ctx.fillStyle='#c3d4ff'; ctx.font='12px system-ui';
+    ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(`${fmt(pos)}`, lx, ly);
+    ctx.setLineDash([4,6]);
+  }
+  ctx.setLineDash([]); ctx.restore();
+  const [tx,ty]=toPx(bannerWIn/2, baseYIn + bannerHIn + 1.1);
+  ctx.save(); ctx.fillStyle='#9aa6b2'; ctx.font='12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(`Stringer Spacing Guide — ${c.stringers} stringers across ${fmt(36)}`, tx, ty); ctx.restore();
+}
+function drawStair(c){
+  const run=c.treadDepthIn, rise=c.finishedRiserIn, over=c.nosingIn;
+  clearCanvas();
+  ctx.save(); ctx.lineWidth=2; ctx.strokeStyle='#5fb3ff';
+  let x=0, y=0;
+  for(let i=0;i<c.treads;i++){
+    lineInches(x, y, x+run, y);
+    ctx.strokeStyle='#7cd67c'; lineInches(x+run, y, x+run+over, y); ctx.strokeStyle='#5fb3ff';
+    if(!(c.topTread && i===c.treads-1)){ lineInches(x+run, y, x+run, y+rise); }
+    x+=run; y+=rise;
+  }
+  if(!c.topTread){ lineInches(x, y, x, y + (c.risers ? rise : 0)); }
+  ctx.strokeStyle='#8ab6ff'; ctx.lineWidth=2.5; lineInches(0,0, c.totalRunCutIn, c.effectiveRiseIn);
+  drawFramingSquare(run, rise);
+  labelDimMid(0,0, c.totalRunCutIn, 0, `Total Run (cut) ${fmt(c.totalRunCutIn)}`, '#7cd67c');
+  labelDimMid(c.totalRunCutIn, 0, c.totalRunCutIn, c.effectiveRiseIn, `Effective Rise ${fmt(c.effectiveRiseIn)}`, '#ff9c9c');
+  const [xa,ya]=toPx(c.totalRunCutIn,c.effectiveRiseIn), [xb,yb]=toPx(0,0);
+  const mx=(xa+xb)/2, my=(ya+yb)/2;
+  ctx.strokeStyle='#8ad'; ctx.fillStyle='#c3d4ff'; ctx.lineWidth=1.25; ctx.setLineDash([6,6]);
+  ctx.beginPath(); ctx.moveTo(xb,yb); ctx.lineTo(xa,ya); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(`Stringer ${fmt(c.stringerLenIn)}`, mx, my-8);
+  drawSpacingGuide(c);
+  ctx.restore();
+}
+
+/* Inputs */
+function readInputs(){
+  const totalRiseIn = clamp(parseFloat(el.totalRise.value||'0'),1,10000);
+  const treadDepthIn = clamp(parseFloat(el.treadDepth.value||'0'),1,48);
+  const maxRiserIn   = clamp(parseFloat(el.maxRiser.value||'0'),1,12);
+  const stringers    = clamp(parseInt(el.stringers.value||'3',10),1,12);
+  const treadThickIn = clamp(parseFloat(el.treadThick.value||'0'),0,6);
+  const topLandingThickIn = clamp(parseFloat(el.topLandingThick.value||'0'),0,6);
+  const nosingIn     = clamp(parseFloat(el.nosing.value||'0'),0,6);
+  const kerfIn       = clamp(parseFloat(el.kerf.value||'0'),0,1);
+  const topTread     = !!el.topTread.checked;
+  state.input = { totalRiseIn, treadDepthIn, maxRiserIn, stringers, treadThickIn, topLandingThickIn, nosingIn, kerfIn, topTread };
+}
+const update = debounce(()=>{
+  readInputs();
+  state.calc = computeStair(state.input);
+  computeScale(state.calc);
+  ircBadges(state.calc);
+  renderMetrics(state.calc);
+  renderCutsOffsets(state.calc);
+  renderCutList(state.calc);
+  drawStair(state.calc);
+}, 40);
+
+function resetDefaults(){
+  el.totalRise.value = DEFAULTS.totalRiseIn;
+  el.treadDepth.value = DEFAULTS.treadDepthIn;
+  el.maxRiser.value = DEFAULTS.maxRiserIn;
+  el.stringers.value = DEFAULTS.stringers;
+  el.treadThick.value = DEFAULTS.treadThickIn;
+  el.topLandingThick.value = DEFAULTS.topLandingThickIn;
+  el.nosing.value = DEFAULTS.nosingIn;
+  el.kerf.value = DEFAULTS.kerfIn;
+  el.topTread.checked = DEFAULTS.topTread;
+  update();
+}
+function fitView(){ computeScale(state.calc); update(); }
+
+['input','change'].forEach(evt=> el.form.addEventListener(evt, update, {passive:true}));
+el.fitBtn.addEventListener('click', fitView);
+el.resetBtn.addEventListener('click', resetDefaults);
+
+/* PDF Export */
+function exportPDF(){
+  const imgData = el.canvas.toDataURL('image/png');
+  const metricsHTML = el.metrics.outerHTML;
+  const cutsHTML = el.cutsOffsets.outerHTML;
+  const cutDetails = document.getElementById('cutDetails');
+  const cutHTML = cutDetails.outerHTML.replace('<details', '<details open');
+  const css = `@page{size:Letter; margin:12mm;} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#111;}
+    h1{font-size:16px;margin:0 0 8px;} .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .section{margin:12px 0;} img{max-width:100%;height:auto;border:1px solid #ccc;border-radius:6px;}
+    table{width:100%;border-collapse:collapse;font-size:12px} th,td{padding:6px 8px;border-bottom:1px solid #ddd;text-align:right}
+    th:first-child,td:first-child{text-align:left} .small{font-size:11px;color:#444}`;
+  const html = `<html><head><title>Stairway Calculator — Export</title><style>${css}</style></head><body>
+    <h1>Stairway Calculator — Export</h1>
+    <div class="section"><img src="${imgData}" alt="Stair Profile"><div class="small">Canvas snapshot</div></div>
+    <div class="section grid">${metricsHTML}${cutsHTML}</div>
+    <div class="section">${cutHTML}</div>
+    <script>setTimeout(()=>window.print(),300);<\/script>
+  </body></html>`;
+  const w = window.open('', '_blank', 'noopener,noreferrer');
+  w.document.open(); w.document.write(html); w.document.close();
+}
+el.pdfBtn.addEventListener('click', exportPDF);
+
+/* PWA SW registration */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .catch(err => console.warn('SW registration failed', err));
+  });
+}
+
+resetDefaults();
+</script>
+</body>
+</html>
