@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#151821">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 
 <style>
   :root{
@@ -21,7 +21,7 @@
     background:linear-gradient(180deg,#0e1118,#0b0e14 35%,#0e1118);}
   .wrap{display:grid;grid-template-columns:1fr;gap:12px;padding:12px;max-width:1200px;margin:0 auto;}
   @media(min-width:900px){.wrap{grid-template-columns:400px 1fr;gap:16px;padding:16px}}
-  .card{background:var(--panel);border:1px solid #1e2330;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
+  .card{background:var(--panel);border:1px solid #1e2330;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden;}
   .card h2{margin:0;padding:14px 16px 6px;font-size:1.05rem;color:#cfe3ff;letter-spacing:.2px}
   .card .body{padding:12px 16px 16px}
   form{display:grid;gap:10px}
@@ -149,7 +149,7 @@
         <div class="table" style="margin-top:8px">
           <table id="cutTable">
             <thead>
-              <tr><th>Step</th><th>Mark @</th><th>Cumulative Rise</th><th>Cumulative Run</th></tr>
+              <tr><th>Step</th><th>Mark at</th><th>Cumulative Rise</th><th>Cumulative Run</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -160,7 +160,9 @@
   </section>
 </div>
 
+<script src="stair-math.js"></script>
 <script>
+const { DEFAULTS, computeStair, ASSUMED_STAIR_WIDTH_IN } = StairMath;
 /* Fraction formatting (1/16") */
 const FRACTION_DENOM = 16;
 function toFractionInches(valInches, denom = FRACTION_DENOM) {
@@ -181,12 +183,6 @@ const fmt = toFractionInches;
 
 /* Config & DOM */
 const IRC = Object.freeze({ MAX_RISER_IN: 7.75, MIN_TREAD_IN: 10.0 });
-const DEFAULTS = Object.freeze({
-  totalRiseIn:108, treadDepthIn:10, maxRiserIn:7.75, stringers:3,
-  treadThickIn:1.00, topLandingThickIn:1.00, nosingIn:1.00, kerfIn:0.125,
-  topTread:false
-});
-const ASSUMED_STAIR_WIDTH_IN = 36;
 const el = {
   form: document.getElementById('stairForm'),
   totalRise: document.getElementById('totalRise'),
@@ -217,37 +213,7 @@ let state = {
   view: { paddingIn:8, scalePxPerIn:4, ox:60, oy: el.canvas.height - 40 }
 };
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const ceil=Math.ceil;
-const hypot=(x,y)=>Math.hypot(x,y);
 function debounce(fn,ms=80){ let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),ms);} }
-
-/* Core calc */
-function computeStair(i){
-  const effectiveRiseIn = Math.max(0.001, i.totalRiseIn - (i.topTread ? 0 : i.topLandingThickIn));
-  const risers = Math.max(1, ceil(effectiveRiseIn / i.maxRiserIn));
-  const finishedRiserIn = effectiveRiseIn / risers;
-  const treads = i.topTread ? risers : Math.max(0, risers - 1);
-  const totalRunCutIn = i.treadDepthIn * treads;
-  const totalRunFinishedIn = totalRunCutIn + (i.nosingIn * treads);
-  const stringerLenIn = hypot(totalRunCutIn, effectiveRiseIn);
-  const stepHypIn = hypot(i.treadDepthIn, finishedRiserIn);
-  const starterPlumbCutIn = finishedRiserIn;
-  const seatCutIn = i.treadDepthIn;
-  const finishPlumbCutIn = finishedRiserIn;
-  const blankLenRequiredIn = stringerLenIn + i.kerfIn*2;
-  let spacing=[];
-  const n = clamp(parseInt(i.stringers,10)||3,1,12);
-  if (n>=2){
-    const step=ASSUMED_STAIR_WIDTH_IN/(n-1);
-    for(let k=0;k<n;k++) spacing.push(k*step);
-  } else spacing.push(ASSUMED_STAIR_WIDTH_IN/2);
-  return {
-    ...i, effectiveRiseIn, risers, treads, finishedRiserIn,
-    totalRunCutIn, totalRunFinishedIn, stringerLenIn, stepHypIn,
-    starterPlumbCutIn, seatCutIn, finishPlumbCutIn, blankLenRequiredIn,
-    spacing
-  };
-}
 
 /* Render */
 function ircBadges(c){
@@ -340,7 +306,7 @@ function drawFramingSquare(runIn,riseIn){
   ctx.restore();
 }
 function drawSpacingGuide(c){
-  const bannerWIn=36, bannerHIn=6, baseYIn=c.effectiveRiseIn+8;
+  const bannerWIn=ASSUMED_STAIR_WIDTH_IN, bannerHIn=6, baseYIn=c.effectiveRiseIn+8;
   ctx.save(); ctx.strokeStyle='#a8b3c7'; ctx.lineWidth=1.5;
   lineInches(0,baseYIn,bannerWIn,baseYIn);
   lineInches(0,baseYIn+bannerHIn,bannerWIn,baseYIn+bannerHIn);
@@ -357,7 +323,7 @@ function drawSpacingGuide(c){
   ctx.setLineDash([]); ctx.restore();
   const [tx,ty]=toPx(bannerWIn/2, baseYIn + bannerHIn + 1.1);
   ctx.save(); ctx.fillStyle='#9aa6b2'; ctx.font='12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
-  ctx.fillText(`Stringer Spacing Guide — ${c.stringers} stringers across ${fmt(36)}`, tx, ty); ctx.restore();
+  ctx.fillText(`Stringer Spacing Guide — ${c.stringers} stringers across ${fmt(ASSUMED_STAIR_WIDTH_IN)}`, tx, ty); ctx.restore();
 }
 function drawStair(c){
   const run=c.treadDepthIn, rise=c.finishedRiserIn, over=c.nosingIn;
