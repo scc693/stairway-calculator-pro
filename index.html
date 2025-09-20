@@ -39,9 +39,19 @@
   .badge{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border-radius:999px;font-size:.78rem;background:#111623;border:1px solid #243049;color:var(--muted)}
   .badge.ok{color:#b8f7c9;border-color:#1d5432;background:#0b1a11}
   .badge.bad{color:#ffd6d6;border-color:#4b1d27;background:#1a0c10}
-  .canvas-wrap{display:grid;gap:10px;padding:10px 12px 14px}
+  .canvas-wrap{display:flex;flex-direction:column;gap:14px;padding:12px 14px 18px}
+  @media(min-width:720px){.canvas-wrap{gap:16px;padding:14px 18px 22px}}
   .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:0 4px}
+  .toolbar .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .toolbar .right{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+  @media(max-width:680px){
+    .toolbar{flex-direction:column;align-items:stretch;gap:10px;padding:0}
+    .toolbar .left{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+    .toolbar .right{width:100%;justify-content:space-between}
+    .toolbar .right .btn{flex:1 1 auto;min-width:140px}
+    .zoom-controls{flex:1 1 auto;width:100%;justify-content:space-between}
+    .zoom-controls input[type="range"]{flex:1 1 auto;width:100%;min-width:0}
+  }
   .btn{border:1px solid #2a3140;background:#0e121a;color:var(--ink);padding:8px 10px;border-radius:8px;font-size:.9rem;cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
   .btn:active{transform:translateY(1px)}
   .btn:hover{background:#121a26;border-color:#334158}
@@ -52,14 +62,23 @@
   .zoom-controls input[type="range"]{appearance:none;width:120px;height:4px;border-radius:999px;background:linear-gradient(90deg,rgba(95,179,255,.85),rgba(95,179,255,.35));outline:none}
   .zoom-controls input[type="range"]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #5fb3ff;box-shadow:0 0 0 2px rgba(95,179,255,.2);cursor:pointer}
   .zoom-controls input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #5fb3ff;box-shadow:0 0 0 2px rgba(95,179,255,.2);cursor:pointer}
-  .blueprint{position:relative;border-radius:12px;border:1px solid #1f2431;background:radial-gradient(1200px 400px at 10% 0%,#0f1420 0,#0a0d14 60%,#0a0d14 100%);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(95,179,255,.08)}
+  .blueprint-shell{display:grid;gap:12px}
+  .blueprint{position:relative;border-radius:16px;border:1px solid #1f2431;background:radial-gradient(1200px 400px at 12% -6%,#111829 0,#0a0d14 55%,#090c12 100%);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(95,179,255,.08);min-height:clamp(280px,60vw,520px)}
+  @media(min-width:900px){.blueprint{min-height:clamp(340px,48vw,640px)}}
   canvas{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
   canvas:active{cursor:grabbing}
-  .blueprint-overlay{position:absolute;top:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}
-  .blueprint-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:.75rem;color:#dce9ff;background:rgba(13,18,30,.72);border:1px solid rgba(95,179,255,.28);backdrop-filter:blur(6px);text-transform:uppercase;letter-spacing:.04em}
-  .blueprint-chip.scale{margin-left:auto}
-  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;font-size:.82rem;color:#9aa6b2;padding:2px 4px 0}
-  .legend span{display:flex;align-items:center;gap:6px;background:#0e121a;border:1px solid #202736;border-radius:8px;padding:6px 8px}
+  .blueprint-overlay{position:absolute;top:14px;left:14px;right:14px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none;transition:opacity .3s ease,transform .3s ease;align-items:flex-start}
+  .blueprint-overlay.dismissed{opacity:0;transform:translateY(-10px)}
+  .blueprint-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:.75rem;color:#dce9ff;background:rgba(13,18,30,.78);border:1px solid rgba(95,179,255,.24);backdrop-filter:blur(8px);text-transform:uppercase;letter-spacing:.05em}
+  .scale-hud{position:absolute;bottom:14px;right:14px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+  .scale-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:.78rem;background:rgba(12,18,30,.86);border:1px solid rgba(95,179,255,.28);color:#e1ecff;box-shadow:0 0 20px rgba(9,16,28,.32)}
+  .blueprint-meta{display:grid;gap:14px}
+  .blueprint-meta > *{margin:0}
+  .legend-card{background:#0e121a;border:1px solid #202736;border-radius:12px;padding:10px 12px;color:#9aa6b2}
+  .legend-card summary{cursor:pointer;font-weight:600;color:#cfe3ff;margin:-10px -12px 8px;padding:10px 12px}
+  .legend-card[open] summary{border-bottom:1px solid rgba(45,55,72,.6)}
+  .legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;font-size:.82rem}
+  .legend-grid span{display:flex;align-items:center;gap:6px;background:#0b1018;border:1px solid #1d2535;border-radius:8px;padding:6px 8px}
   .swatch{width:14px;height:4px;border-radius:2px;display:inline-block;background:var(--accent)}
   .swatch.run{background:#7cd67c}.swatch.rise{background:#ff9c9c}.swatch.square{background:#ffd36e}.swatch.stringer{background:#8ad}.swatch.dim{background:#c3d4ff}
   details{background:#0e121a;border:1px solid #2a3140;border-radius:10px;padding:10px 12px}
@@ -145,7 +164,7 @@
         <div class="right">
           <div class="zoom-controls" role="group" aria-label="Zoom controls">
             <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
-            <input type="range" id="zoomSlider" min="0.25" max="3.5" step="0.01" value="1" aria-label="Zoom level">
+            <input type="range" id="zoomSlider" min="0.18" max="5" step="0.01" value="1" aria-label="Zoom level">
             <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
           </div>
           <button class="btn" id="pdfBtn" type="button">Export PDF</button>
@@ -154,38 +173,47 @@
         </div>
       </div>
 
-      <div class="blueprint" id="blueprintSurface">
-        <canvas id="stairCanvas" width="1400" height="700" aria-label="Stair profile drawing"></canvas>
-        <div class="blueprint-overlay" aria-hidden="true">
-          <span class="blueprint-chip">Drag to pan</span>
-          <span class="blueprint-chip">Pinch or scroll to zoom</span>
-          <span class="blueprint-chip scale" id="scaleBadge">Scale —</span>
+      <div class="blueprint-shell">
+        <div class="blueprint" id="blueprintSurface">
+          <canvas id="stairCanvas" width="1400" height="700" aria-label="Stair profile drawing"></canvas>
+          <div class="blueprint-overlay" id="interactionHints" aria-hidden="true">
+            <span class="blueprint-chip">Tap &amp; drag to explore</span>
+            <span class="blueprint-chip">Pinch or scroll to zoom</span>
+          </div>
+          <div class="scale-hud" aria-hidden="true">
+            <span class="scale-pill" id="scaleBadge">Scale —</span>
+          </div>
+        </div>
+
+        <div class="blueprint-meta">
+          <details class="legend-card" open>
+            <summary>Blueprint key</summary>
+            <div class="legend-grid">
+              <span><i class="swatch stringer"></i> Stringer line</span>
+              <span><i class="swatch"></i> Treads &amp; risers (finished)</span>
+              <span><i class="swatch square"></i> Framing square overlay</span>
+              <span><i class="swatch run"></i> Run dimension</span>
+              <span><i class="swatch rise"></i> Rise dimension</span>
+              <span><i class="swatch dim"></i> Dimension labels</span>
+            </div>
+          </details>
+
+          <div id="cutsOffsets" class="cutgrid"></div>
+
+          <details id="cutDetails">
+            <summary>Cut List (per stringer)</summary>
+            <div class="table" style="margin-top:8px">
+              <table id="cutTable">
+                <thead>
+                  <tr><th>Step</th><th>Mark at</th><th>Cumulative Rise</th><th>Cumulative Run</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="hint" style="margin-top:6px">Marks are measured along the <b>stringer</b> from the bottom plumb cut position, one mark per notch.</div>
+          </details>
         </div>
       </div>
-
-      <div class="legend">
-        <span><i class="swatch stringer"></i> Stringer line</span>
-        <span><i class="swatch"></i> Treads & risers (finished)</span>
-        <span><i class="swatch square"></i> Framing square overlay</span>
-        <span><i class="swatch run"></i> Run dimension</span>
-        <span><i class="swatch rise"></i> Rise dimension</span>
-        <span><i class="swatch dim"></i> Dimension labels</span>
-      </div>
-
-      <div id="cutsOffsets" class="cutgrid" style="margin-top:12px"></div>
-
-      <details id="cutDetails" style="margin-top:12px">
-        <summary>Cut List (per stringer)</summary>
-        <div class="table" style="margin-top:8px">
-          <table id="cutTable">
-            <thead>
-              <tr><th>Step</th><th>Mark at</th><th>Cumulative Rise</th><th>Cumulative Run</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="hint" style="margin-top:6px">Marks are measured along the <b>stringer</b> from the bottom plumb cut position, one mark per notch.</div>
-      </details>
     </div>
   </section>
 </div>
@@ -235,6 +263,7 @@ const el = {
   cutsOffsets: document.getElementById('cutsOffsets'),
   cutTableBody: document.getElementById('cutTable').querySelector('tbody'),
   scaleBadge: document.getElementById('scaleBadge'),
+  interactionHints: document.getElementById('interactionHints'),
   zoomSlider: document.getElementById('zoomSlider'),
   zoomIn: document.getElementById('zoomIn'),
   zoomOut: document.getElementById('zoomOut')
@@ -250,8 +279,8 @@ let state = {
     baseScale:1,
     scalePxPerIn:4,
     zoom:1,
-    minZoom:0.25,
-    maxZoom:3.5,
+    minZoom:0.18,
+    maxZoom:5,
     panX:0,
     panY:0,
     autoFit:true,
@@ -267,6 +296,35 @@ let state = {
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 function debounce(fn,ms=80){ let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),ms);} }
 
+let hintsDismissed = false;
+let hintDismissTimer = null;
+function dismissHints(){
+  if(hintsDismissed) return;
+  hintsDismissed = true;
+  if(hintDismissTimer){
+    clearTimeout(hintDismissTimer);
+    hintDismissTimer = null;
+  }
+  if(el.interactionHints){
+    el.interactionHints.classList.add('dismissed');
+  }
+}
+function scheduleHintDismiss(){
+  if(hintDismissTimer){
+    clearTimeout(hintDismissTimer);
+  }
+  if(el.interactionHints && !hintsDismissed){
+    hintDismissTimer = setTimeout(()=>dismissHints(), 7000);
+  }
+}
+function showHints(){
+  hintsDismissed = false;
+  if(el.interactionHints){
+    el.interactionHints.classList.remove('dismissed');
+  }
+  scheduleHintDismiss();
+}
+
 function updateOrigin(){
   state.view.ox = state.view.baseOx + state.view.panX;
   state.view.oy = state.view.baseOy + state.view.panY;
@@ -280,7 +338,8 @@ function updateScaleBadge(){
   }
   const px = state.view.scalePxPerIn;
   const display = px >= 100 ? Math.round(px) : Math.round(px*10)/10;
-  el.scaleBadge.textContent = `Scale 1\" ≈ ${display}px`;
+  const zoomPct = Math.round(state.view.zoom * 100);
+  el.scaleBadge.textContent = `Scale 1\" ≈ ${display}px · Zoom ${zoomPct}%`;
 }
 
 function syncZoomUI(){
@@ -297,7 +356,9 @@ function resizeCanvas(){
   const rect = el.blueprint.getBoundingClientRect();
   let width = Math.round(rect.width);
   if(!width){ width = Math.round(el.canvas.clientWidth || 640); }
-  const height = Math.max(260, Math.round(width * 0.6));
+  const viewportHeight = typeof window !== 'undefined' ? (window.innerHeight || 0) : 0;
+  const maxHeight = viewportHeight ? Math.min(Math.max(viewportHeight * 0.7, 320), 680) : 560;
+  const height = Math.round(clamp(width * 0.58, 260, maxHeight));
   el.canvas.style.height = `${height}px`;
   const displayWidth = Math.floor(width * dpr);
   const displayHeight = Math.floor(height * dpr);
@@ -380,7 +441,7 @@ function computeScale(c){
   const availHeight = Math.max(80, state.view.cssHeight - marginTop - marginBottom);
   const sx=availWidth/Math.max(wIn, 1);
   const sy=availHeight/Math.max(hIn, 1);
-  state.view.baseScale = Math.max(2, Math.min(sx, sy));
+  state.view.baseScale = Math.max(1.2, Math.min(sx, sy));
   state.view.baseOx = marginLeft;
   state.view.baseOy = state.view.cssHeight - marginBottom;
   if(state.view.autoFit){
@@ -555,6 +616,7 @@ let pinchStart = null;
 
 function applyPan(dx, dy){
   if(!state.calc) return;
+  dismissHints();
   state.view.autoFit = false;
   state.view.panX += dx;
   state.view.panY += dy;
@@ -569,6 +631,7 @@ function canvasCenterAnchor(){
 
 function applyZoom(targetZoom, anchorX, anchorY){
   if(!state.calc) return;
+  dismissHints();
   const newZoom = clamp(targetZoom, state.view.minZoom, state.view.maxZoom);
   const [wx, wy] = screenToInches(anchorX, anchorY);
   state.view.zoom = newZoom;
@@ -586,6 +649,7 @@ function applyZoom(targetZoom, anchorX, anchorY){
 
 function onPointerDown(e){
   if(e.pointerType === 'mouse' && e.button !== 0) return;
+  dismissHints();
   e.preventDefault();
   el.canvas.setPointerCapture(e.pointerId);
   pointerState.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
@@ -638,6 +702,7 @@ function endPointer(e){
 
 function onWheel(e){
   if(!state.calc) return;
+  dismissHints();
   e.preventDefault();
   const rect = el.canvas.getBoundingClientRect();
   const anchorX = e.clientX - rect.left;
@@ -672,6 +737,7 @@ const update = debounce(()=>{
 }, 40);
 
 function resetDefaults(){
+  showHints();
   el.totalRise.value = DEFAULTS.totalRiseIn;
   el.treadDepth.value = DEFAULTS.treadDepthIn;
   el.maxRiser.value = DEFAULTS.maxRiserIn;
@@ -760,6 +826,7 @@ function setupTouchFallback(){
   };
   el.canvas.addEventListener('touchstart', e => {
     e.preventDefault();
+    dismissHints();
     updateFromTouches(e.touches);
   }, { passive: false });
   el.canvas.addEventListener('touchmove', e => {
@@ -789,24 +856,76 @@ function exportPDF(){
   const metricsHTML = el.metrics.outerHTML;
   const cutsHTML = el.cutsOffsets.outerHTML;
   const cutDetails = document.getElementById('cutDetails');
-  const cutHTML = cutDetails.outerHTML.replace('<details', '<details open');
-  const css = `@page{size:Letter; margin:12mm;} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#111;background:#fff;}`
-    + `h1{font-size:18px;margin:0 0 10px;} .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}`
-    + `.section{margin:12px 0;} img{max-width:100%;height:auto;border:1px solid #ccc;border-radius:6px;}`
-    + `table{width:100%;border-collapse:collapse;font-size:12px} th,td{padding:6px 8px;border-bottom:1px solid #ddd;text-align:right}`
-    + `th:first-child,td:first-child{text-align:left} .small{font-size:11px;color:#444}`;
+  const cutDetailsHTML = cutDetails.outerHTML;
+  const cutHTML = cutDetailsHTML.includes('<details open') ? cutDetailsHTML : cutDetailsHTML.replace('<details', '<details open');
+  const legendCard = document.querySelector('.legend-card');
+  const legendCardHTML = legendCard ? legendCard.outerHTML : '';
+  const legendHTML = legendCardHTML && !legendCardHTML.includes('<details open') ? legendCardHTML.replace('<details', '<details open') : legendCardHTML;
+  const scaleNote = el.scaleBadge ? el.scaleBadge.textContent : '';
+  const scaleCaption = scaleNote && scaleNote.trim() !== 'Scale —' ? scaleNote : 'Canvas snapshot';
+  const legendSection = legendHTML ? `<div class="section">${legendHTML}</div>` : '';
+  const css = `@page{size:Letter; margin:12mm;} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#141d33;background:#fff;}`
+    + `h1{font-size:18px;margin:0 0 10px;color:#0d1628;}`
+    + `.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}`
+    + `.section{margin:12px 0;}`
+    + `img{max-width:100%;height:auto;border:1px solid #c7d1e2;border-radius:8px;box-shadow:0 8px 22px rgba(15,24,40,.08);}`
+    + `.small{font-size:11px;color:#4a5875;margin-top:4px;}`
+    + `.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}`
+    + `.cutgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}`
+    + `.metric{padding:8px 10px;border-radius:8px;border:1px solid #d8deeb;background:#f4f7fb;font-size:12px;line-height:1.4;color:#1f2b44;}`
+    + `.metric strong{display:block;font-weight:600;margin-bottom:4px;color:#0d1628;}`
+    + `.table{border:1px solid #d8deeb;border-radius:10px;overflow:hidden;margin-top:8px;}`
+    + `table{width:100%;border-collapse:collapse;font-size:12px;}`
+    + `th,td{padding:6px 8px;border-bottom:1px solid #d8deeb;text-align:right;}`
+    + `th{text-align:right;background:#eef2fb;color:#1f2b44;}`
+    + `th:first-child,td:first-child{text-align:left;}`
+    + `details{background:#f6f8fc;border:1px solid #d8deeb;border-radius:10px;padding:10px 12px;margin:12px 0;}`
+    + `details summary{cursor:pointer;font-weight:600;color:#0d1628;margin:-10px -12px 8px;padding:10px 12px;background:#e9effc;border-bottom:1px solid #d8deeb;border-radius:10px 10px 0 0;}`
+    + `details[open] summary{border-bottom-color:#d0d8eb;}`
+    + `.legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;font-size:12px;}`
+    + `.legend-grid span{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #d8deeb;border-radius:6px;padding:6px 8px;color:#1f2b44;}`
+    + `.swatch{width:14px;height:4px;border-radius:2px;display:inline-block;}`
+    + `.scale-note{font-size:12px;color:#4a5875;margin-top:6px;}`;
   const html = `<html><head><title>Stairway Calculator — Export</title><meta charset="utf-8"><style>${css}</style></head><body>
     <h1>Stairway Calculator — Export</h1>
-    <div class="section"><img src="${imgData}" alt="Stair Profile"><div class="small">Canvas snapshot</div></div>
+    <div class="section"><img src="${imgData}" alt="Stair Profile"><div class="small scale-note">${scaleCaption}</div></div>
     <div class="section grid">${metricsHTML}${cutsHTML}</div>
+    ${legendSection}
     <div class="section">${cutHTML}</div>
-    <script>window.addEventListener('load',()=>{setTimeout(()=>{window.focus();window.print();},400);});<\/script>
   </body></html>`;
-  const popup = window.open('', '_blank', 'noopener,noreferrer');
-  if(popup && popup.document){
-    popup.document.open();
-    popup.document.write(html);
-    popup.document.close();
+  const blob = new Blob([html], { type: 'text/html' });
+  const blobUrl = URL.createObjectURL(blob);
+  let cleaned = false;
+  const cleanup = () => {
+    if(cleaned) return;
+    cleaned = true;
+    URL.revokeObjectURL(blobUrl);
+  };
+  const popup = window.open(blobUrl, '_blank', 'noopener');
+  if(popup){
+    try { popup.focus(); } catch(err){}
+    const closeWatcher = setInterval(() => {
+      if(!popup || popup.closed){
+        clearInterval(closeWatcher);
+        cleanup();
+      }
+    }, 4000);
+    const onAfterPrint = () => {
+      clearInterval(closeWatcher);
+      setTimeout(cleanup, 600);
+    };
+    if(popup.addEventListener){
+      popup.addEventListener('load', () => {
+        try { popup.focus(); popup.print(); } catch(err){}
+      }, { once: true });
+      popup.addEventListener('afterprint', onAfterPrint, { once: true });
+    } else {
+      popup.onload = () => {
+        try { popup.focus(); popup.print(); } catch(err){}
+      };
+      popup.onafterprint = onAfterPrint;
+    }
+    setTimeout(cleanup, 15000);
   } else {
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
@@ -815,20 +934,28 @@ function exportPDF(){
     iframe.style.width = '0';
     iframe.style.height = '0';
     iframe.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(iframe);
-    const frameDoc = iframe.contentDocument || iframe.contentWindow.document;
-    frameDoc.open();
-    frameDoc.write(html);
-    frameDoc.close();
-    const cleanup = () => {
-      setTimeout(()=>{
+    const finalize = () => {
+      setTimeout(() => {
         if(iframe.parentNode){ iframe.parentNode.removeChild(iframe); }
-      }, 1200);
+        cleanup();
+      }, 600);
     };
-    iframe.onload = cleanup;
-    if(iframe.contentWindow){
-      iframe.contentWindow.addEventListener('afterprint', cleanup, { once: true });
-    }
+    iframe.onload = () => {
+      const frameWin = iframe.contentWindow;
+      if(frameWin){
+        try { frameWin.focus(); frameWin.print(); } catch(err){}
+        if(frameWin.addEventListener){
+          frameWin.addEventListener('afterprint', finalize, { once: true });
+        } else {
+          frameWin.onafterprint = finalize;
+        }
+        setTimeout(finalize, 12000);
+      } else {
+        finalize();
+      }
+    };
+    iframe.src = blobUrl;
+    document.body.appendChild(iframe);
   }
 }
 el.pdfBtn.addEventListener('click', exportPDF);
