@@ -10,4 +10,4 @@ Deployed via GitHub Pages. Built 2025-08-09T08:42:31.835411Z.
 - index.html — app (fractions everywhere, PDF export, PWA registration)
 - manifest.json — PWA manifest
 - service-worker.js — offline cache
-- icons/icon-192.png, icons/icon-512.png — PWA icons
+- icon-192.png, icon-512.png — PWA icons
