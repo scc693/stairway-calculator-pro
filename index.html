@@ -312,7 +312,7 @@ function renderMetrics(c){
     <div class="metric"><strong>Risers</strong>${c.risers}</div>
     <div class="metric"><strong>Treads</strong>${c.treads}</div>
     <div class="metric"><strong>Finished Riser</strong>${fmt(c.finishedRiserIn)}</div>
-    <div class="metric"><strong>Run per Tread (cut)</strong>${fmt(c.treadDepthIn)}</div>
+    <div class="metric"><strong>Run per Tread (cut)</strong>${fmt(c.runPerTreadCutIn)}</div>
     <div class="metric"><strong>Nosing per Tread</strong>${fmt(c.nosingIn)}</div>
     <div class="metric"><strong>Total Run (cut)</strong>${fmt(c.totalRunCutIn)}</div>
     <div class="metric"><strong>Total Run (finished)</strong>${fmt(c.totalRunFinishedIn)}</div>
@@ -483,18 +483,16 @@ function drawStair(c){
   ctx.lineWidth=2;
   ctx.strokeStyle='#5fb3ff';
   let x=0, y=0;
-  for(let i=0;i<c.treads;i++){
-    lineInches(x, y, x+run, y);
-    ctx.strokeStyle='#7cd67c';
-    lineInches(x+run, y, x+run+over, y);
-    ctx.strokeStyle='#5fb3ff';
-    if(!(c.topTread && i===c.treads-1)){
-      lineInches(x+run, y, x+run, y+rise);
+  for(let i=0; i < c.risers; i++){
+    lineInches(x, y, x, y+rise);
+    y += rise;
+    if (i < c.treads) {
+      lineInches(x, y, x + run, y);
+      ctx.strokeStyle = '#7cd67c';
+      lineInches(x + run, y, x + run + over, y);
+      ctx.strokeStyle = '#5fb3ff';
+      x += run;
     }
-    x+=run; y+=rise;
-  }
-  if(!c.topTread){
-    lineInches(x, y, x, y + (c.risers ? rise : 0));
   }
   ctx.strokeStyle='#8ab6ff';
   ctx.lineWidth=2.5;
