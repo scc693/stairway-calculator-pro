@@ -134,6 +134,9 @@
           <span class="badge" id="ircTread">Tread: —</span>
         </div>
         <div class="right">
+          <label class="toggle" for="exportCutlistOnly" style="font-size: .9rem; margin-right: 8px;">
+            <input id="exportCutlistOnly" type="checkbox" /> Cut list only
+          </label>
           <button class="btn" id="pdfBtn" type="button">Export PDF</button>
           <button class="btn" id="fitBtn" type="button">Fit to View</button>
           <button class="btn" id="resetBtn" type="button">Reset</button>
@@ -218,6 +221,7 @@ const el = {
   fitBtn: document.getElementById('fitBtn'),
   resetBtn: document.getElementById('resetBtn'),
   pdfBtn: document.getElementById('pdfBtn'),
+  exportCutlistOnly: document.getElementById('exportCutlistOnly'),
   cutsOffsets: document.getElementById('cutsOffsets'),
   cutTableBody: document.getElementById('cutTable').querySelector('tbody'),
   scaleBadge: document.getElementById('scaleBadge')
@@ -684,8 +688,9 @@ if(typeof ResizeObserver !== 'undefined'){
 }
 
 /* PDF Export */
-function exportPDF(){
-  const imgData = el.canvas.toDataURL('image/png');
+function exportPDF() {
+  const cutlistOnly = el.exportCutlistOnly.checked;
+  const imgData = cutlistOnly ? '' : el.canvas.toDataURL('image/png');
   const metricsHTML = el.metrics.outerHTML;
   const cutsHTML = el.cutsOffsets.outerHTML;
   const cutDetails = document.getElementById('cutDetails');
@@ -695,13 +700,27 @@ function exportPDF(){
     .section{margin:12px 0;} img{max-width:100%;height:auto;border:1px solid #ccc;border-radius:6px;}
     table{width:100%;border-collapse:collapse;font-size:12px} th,td{padding:6px 8px;border-bottom:1px solid #ddd;text-align:right}
     th:first-child,td:first-child{text-align:left} .small{font-size:11px;color:#444}`;
+
+  let content;
+  if (cutlistOnly) {
+    content = `
+      <div class="section grid">${cutsHTML}</div>
+      <div class="section">${cutHTML}</div>
+    `;
+  } else {
+    content = `
+      <div class="section"><img src="${imgData}" alt="Stair Profile"><div class="small">Canvas snapshot</div></div>
+      <div class="section grid">${metricsHTML}${cutsHTML}</div>
+      <div class="section">${cutHTML}</div>
+    `;
+  }
+
   const html = `<html><head><title>Stairway Calculator — Export</title><style>${css}</style></head><body>
     <h1>Stairway Calculator — Export</h1>
-    <div class="section"><img src="${imgData}" alt="Stair Profile"><div class="small">Canvas snapshot</div></div>
-    <div class="section grid">${metricsHTML}${cutsHTML}</div>
-    <div class="section">${cutHTML}</div>
+    ${content}
     <script>setTimeout(()=>window.print(),300);<\/script>
   </body></html>`;
+
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const w = window.open(url, '_blank', 'noopener');
