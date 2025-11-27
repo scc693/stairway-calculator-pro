@@ -48,7 +48,7 @@
     const totalRunFinishedIn = totalRunCutIn + sanitized.nosingIn;
     const stringerLenIn = Math.hypot(totalRunCutIn, effectiveRiseIn);
     const stepHypIn = Math.hypot(sanitized.treadDepthIn, finishedRiserIn);
-    const starterPlumbCutIn = finishedRiserIn;
+    const starterPlumbCutIn = finishedRiserIn - sanitized.treadThickIn;
     const seatCutIn = sanitized.treadDepthIn;
     const finishPlumbCutIn = finishedRiserIn;
     const blankLenRequiredIn = stringerLenIn + sanitized.kerfIn * 2;
