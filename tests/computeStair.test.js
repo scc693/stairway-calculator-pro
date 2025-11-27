@@ -1,8 +1,9 @@
 const assert = require('assert');
 const { computeStair, DEFAULTS } = require('../stair-math.js');
 
-function nearlyEqual(actual, expected, epsilon = 1e-6) {
-  assert(Math.abs(actual - expected) <= epsilon, `${actual} ≉ ${expected}`);
+function nearlyEqual(actual, expected, epsilon = 1e-9) {
+  const diff = Math.abs(actual - expected);
+  assert.ok(diff <= epsilon, `Expected ${actual} to be nearly equal to ${expected}`);
 }
 
 (function shouldSubtractTopLandingWhenNotCountingTopTread() {
@@ -52,6 +53,57 @@ function nearlyEqual(actual, expected, epsilon = 1e-6) {
 
   const result = computeStair(config);
   assert.deepStrictEqual(result.spacing.map(v => Number(v.toFixed(6))), [0, 12, 24, 36], 'spacing should divide 36" width evenly');
+})();
+
+(function shouldSubtractTreadThicknessWhenCountingTopTread() {
+  const config = {
+    ...DEFAULTS,
+    totalRiseIn: 120,
+    treadThickIn: 1.25,
+    topTread: true
+  };
+
+  const result = computeStair(config);
+  nearlyEqual(result.effectiveRiseIn, 118.75);
+})();
+
+(function shouldAddNosingOnceToTotalRun() {
+  const config = {
+    ...DEFAULTS,
+    totalRiseIn: 108,
+    treadDepthIn: 10,
+    nosingIn: 1,
+    topTread: false
+  };
+
+  const result = computeStair(config);
+  // With totalRise:108, topLanding:1, maxRiser:7.75 -> effectiveRise:107 -> risers:14 -> treads:13
+  // totalRunCutIn = 13 * 10 = 130
+  // totalRunFinishedIn = 130 + 1 = 131
+  nearlyEqual(result.totalRunFinishedIn, 131);
+})();
+
+(function shouldCalculateFinishedRiserBasedOnEffectiveRise() {
+  const config = {
+    ...DEFAULTS,
+    totalRiseIn: 108,
+    topLandingThickIn: 1, // effectiveRiseIn will be 107
+  };
+
+  const result = computeStair(config);
+  // effectiveRise: 107, risers: ceil(107 / 7.75) = 14
+  // finishedRiserIn = 107 / 14 = 7.642857...
+  nearlyEqual(result.finishedRiserIn, 107 / 14);
+})();
+
+(function shouldReturnCorrectRunPerTreadCut() {
+    const config = {
+        ...DEFAULTS,
+        treadDepthIn: 11.5,
+    };
+
+    const result = computeStair(config);
+    nearlyEqual(result.runPerTreadCutIn, 11.5);
 })();
 
 console.log('computeStair tests passed');

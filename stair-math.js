@@ -40,15 +40,15 @@
       topTread: Boolean(input.topTread)
     };
 
-    const effectiveRiseIn = Math.max(0.001, sanitized.totalRiseIn - (sanitized.topTread ? 0 : sanitized.topLandingThickIn));
+    const effectiveRiseIn = sanitized.totalRiseIn - (sanitized.topTread ? sanitized.treadThickIn : sanitized.topLandingThickIn);
     const risers = Math.max(1, Math.ceil(effectiveRiseIn / sanitized.maxRiserIn));
     const finishedRiserIn = effectiveRiseIn / risers;
     const treads = sanitized.topTread ? risers : Math.max(0, risers - 1);
     const totalRunCutIn = sanitized.treadDepthIn * treads;
-    const totalRunFinishedIn = totalRunCutIn + (sanitized.nosingIn * treads);
-    const stringerLenIn = Math.hypot(totalRunCutIn, effectiveRiseIn);
+    const totalRunFinishedIn = totalRunCutIn + sanitized.nosingIn * treads;
+    const stringerLenIn = Math.hypot(effectiveRiseIn, totalRunCutIn);
     const stepHypIn = Math.hypot(sanitized.treadDepthIn, finishedRiserIn);
-    const starterPlumbCutIn = finishedRiserIn;
+    const starterPlumbCutIn = finishedRiserIn - sanitized.treadThickIn;
     const seatCutIn = sanitized.treadDepthIn;
     const finishPlumbCutIn = finishedRiserIn;
     const blankLenRequiredIn = stringerLenIn + sanitized.kerfIn * 2;
@@ -79,6 +79,7 @@
       seatCutIn,
       finishPlumbCutIn,
       blankLenRequiredIn,
+      runPerTreadCutIn: sanitized.treadDepthIn,
       spacing
     };
   }

@@ -312,7 +312,7 @@ function renderMetrics(c){
     <div class="metric"><strong>Risers</strong>${c.risers}</div>
     <div class="metric"><strong>Treads</strong>${c.treads}</div>
     <div class="metric"><strong>Finished Riser</strong>${fmt(c.finishedRiserIn)}</div>
-    <div class="metric"><strong>Run per Tread (cut)</strong>${fmt(c.treadDepthIn)}</div>
+    <div class="metric"><strong>Run per Tread (cut)</strong>${fmt(c.runPerTreadCutIn)}</div>
     <div class="metric"><strong>Nosing per Tread</strong>${fmt(c.nosingIn)}</div>
     <div class="metric"><strong>Total Run (cut)</strong>${fmt(c.totalRunCutIn)}</div>
     <div class="metric"><strong>Total Run (finished)</strong>${fmt(c.totalRunFinishedIn)}</div>
@@ -483,20 +483,19 @@ function drawStair(c){
   ctx.lineWidth=2;
   ctx.strokeStyle='#5fb3ff';
   let x=0, y=0;
-  for(let i=0;i<c.treads;i++){
-    lineInches(x, y, x+run, y);
-    ctx.strokeStyle='#7cd67c';
-    lineInches(x+run, y, x+run+over, y);
-    ctx.strokeStyle='#5fb3ff';
-    if(!(c.topTread && i===c.treads-1)){
-      lineInches(x+run, y, x+run, y+rise);
-    }
-    x+=run; y+=rise;
+  for(let i=0; i < c.treads; i++){
+    lineInches(x, y, x, y+rise);
+    y += rise;
+    lineInches(x, y, x + run, y);
+    ctx.strokeStyle = '#7cd67c';
+    lineInches(x + run, y, x + run + over, y);
+    ctx.strokeStyle = '#5fb3ff';
+    x += run;
   }
-  if(!c.topTread){
-    lineInches(x, y, x, y + (c.risers ? rise : 0));
+  if (c.risers > c.treads) {
+    lineInches(x, y, x, y + rise);
   }
-  ctx.strokeStyle='#8ab6ff';
+  ctx.strokeStyle='#8ad';
   ctx.lineWidth=2.5;
   lineInches(0,0, c.totalRunCutIn, c.effectiveRiseIn);
   drawFramingSquare(run, rise);
@@ -686,8 +685,8 @@ function exportPDF(){
   const cutsHTML = el.cutsOffsets.outerHTML;
   const cutDetails = document.getElementById('cutDetails');
   const cutHTML = cutDetails.outerHTML.replace('<details', '<details open');
-  const css = `@page{size:Letter; margin:12mm;} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#111;}
-    h1{font-size:16px;margin:0 0 8px;} .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  const css = `@page{size:Letter; margin:12mm;} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#111;background-color:#fff;}
+    h1{font-size:24px;margin:0 0 8px;} .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
     .section{margin:12px 0;} img{max-width:100%;height:auto;border:1px solid #ccc;border-radius:6px;}
     table{width:100%;border-collapse:collapse;font-size:12px} th,td{padding:6px 8px;border-bottom:1px solid #ddd;text-align:right}
     th:first-child,td:first-child{text-align:left} .small{font-size:11px;color:#444}`;
