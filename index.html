@@ -379,45 +379,51 @@ function drawGrid(){
   const cssH = state.view.cssHeight;
   const style = getComputedStyle(document.documentElement);
   const minor = style.getPropertyValue('--grid').trim() || '#2a2f3a';
+  let minorStepIn = 1;
+  const minPxSpacing = 14;
+  while(minorStepIn * s < minPxSpacing){
+    minorStepIn *= 2;
+  }
+  const majorStepIn = minorStepIn * 6;
   const leftIn = (0 - state.view.ox)/s;
   const rightIn = (cssW - state.view.ox)/s;
   const bottomIn = (state.view.oy - cssH)/s;
   const topIn = state.view.oy/s;
-  const startX = Math.floor(leftIn) - 1;
-  const endX = Math.ceil(rightIn) + 1;
-  const startY = Math.floor(bottomIn) - 1;
-  const endY = Math.ceil(topIn) + 1;
+  const startX = Math.floor(leftIn/minorStepIn)*minorStepIn;
+  const endX = Math.ceil(rightIn/minorStepIn)*minorStepIn;
+  const startY = Math.floor(bottomIn/minorStepIn)*minorStepIn;
+  const endY = Math.ceil(topIn/minorStepIn)*minorStepIn;
   ctx.save();
   ctx.lineWidth = 1;
   ctx.strokeStyle = minor;
-  ctx.globalAlpha = 0.65;
-  for(let i=startX;i<=endX;i+=1){
+  ctx.globalAlpha = 0.45;
+  for(let i=startX;i<=endX;i+=minorStepIn){
     const [x] = toPx(i,0);
     ctx.beginPath();
     ctx.moveTo(x,0);
     ctx.lineTo(x,cssH);
     ctx.stroke();
   }
-  for(let j=startY;j<=endY;j+=1){
+  for(let j=startY;j<=endY;j+=minorStepIn){
     const [,y] = toPx(0,j);
     ctx.beginPath();
     ctx.moveTo(0,y);
     ctx.lineTo(cssW,y);
     ctx.stroke();
   }
-  ctx.globalAlpha = 0.9;
+  ctx.globalAlpha = 0.85;
   ctx.lineWidth = 1.6;
   ctx.strokeStyle = 'rgba(143,160,190,0.6)';
-  const majorStartX = Math.floor(startX/12)*12;
-  for(let i=majorStartX;i<=endX;i+=12){
+  const majorStartX = Math.floor(startX/majorStepIn)*majorStepIn;
+  for(let i=majorStartX;i<=endX;i+=majorStepIn){
     const [x] = toPx(i,0);
     ctx.beginPath();
     ctx.moveTo(x,0);
     ctx.lineTo(x,cssH);
     ctx.stroke();
   }
-  const majorStartY = Math.floor(startY/12)*12;
-  for(let j=majorStartY;j<=endY;j+=12){
+  const majorStartY = Math.floor(startY/majorStepIn)*majorStepIn;
+  for(let j=majorStartY;j<=endY;j+=majorStepIn){
     const [,y] = toPx(0,j);
     ctx.beginPath();
     ctx.moveTo(0,y);
@@ -483,17 +489,16 @@ function drawStair(c){
   ctx.lineWidth=2;
   ctx.strokeStyle='#5fb3ff';
   let x=0, y=0;
-  for(let i=0; i < c.treads; i++){
+  for(let i=0; i < c.risers; i++){
     lineInches(x, y, x, y+rise);
     y += rise;
-    lineInches(x, y, x + run, y);
-    ctx.strokeStyle = '#7cd67c';
-    lineInches(x + run, y, x + run + over, y);
-    ctx.strokeStyle = '#5fb3ff';
-    x += run;
-  }
-  if (c.risers > c.treads) {
-    lineInches(x, y, x, y + rise);
+    if (i < c.treads) {
+      lineInches(x, y, x + run, y);
+      ctx.strokeStyle = '#7cd67c';
+      lineInches(x + run, y, x + run + over, y);
+      ctx.strokeStyle = '#5fb3ff';
+      x += run;
+    }
   }
   ctx.strokeStyle='#8ad';
   ctx.lineWidth=2.5;

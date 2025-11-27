@@ -45,8 +45,8 @@
     const finishedRiserIn = effectiveRiseIn / risers;
     const treads = sanitized.topTread ? risers : Math.max(0, risers - 1);
     const totalRunCutIn = sanitized.treadDepthIn * treads;
-    const totalRunFinishedIn = totalRunCutIn + sanitized.nosingIn * treads;
-    const stringerLenIn = Math.hypot(effectiveRiseIn, totalRunCutIn);
+    const totalRunFinishedIn = totalRunCutIn + sanitized.nosingIn;
+    const stringerLenIn = Math.hypot(totalRunCutIn, effectiveRiseIn);
     const stepHypIn = Math.hypot(sanitized.treadDepthIn, finishedRiserIn);
     const starterPlumbCutIn = finishedRiserIn - sanitized.treadThickIn;
     const seatCutIn = sanitized.treadDepthIn;
