@@ -20,7 +20,7 @@
     flex-direction: column;
     gap: 0.5rem;
     flex: 1; /* Allow growing in flex container */
-    min-width: 0; /* Allow shrinking below content size */
+    min-width: 150px; /* Ensure inputs don't get too narrow, forces wrap */
 }
 
 .input-row {
@@ -31,8 +31,8 @@
     flex-wrap: wrap; /* Allow wrapping to prevent spillover */
 }
 
-/* Fix for narrow screens? */
-@media (max-width: 600px) {
+/* Fix for narrow screens and tablets */
+@media (max-width: 768px) {
     .input-row {
         flex-direction: column;
     }
