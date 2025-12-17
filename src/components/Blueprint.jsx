@@ -94,10 +94,11 @@ const Blueprint = ({
       <TransformWrapper
         initialScale={1}
         minScale={0.5}
-        maxScale={4}
+        maxScale={8}
+        centerOnInit={true}
         wheel={{ step: 0.1 }}
       >
-        <TransformComponent wrapperClass="zoom-wrapper" contentClass="zoom-content">
+        <TransformComponent wrapperClass="zoom-wrapper" contentClass="zoom-content" wrapperStyle={{ width: "100%", height: "100%" }}>
             <svg viewBox={viewBox} className="stair-svg">
                 <defs>
                     <pattern id="woodPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
