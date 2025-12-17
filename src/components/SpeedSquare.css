@@ -1,0 +1,40 @@
+.speed-square-container {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.guide-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.guide-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-color);
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.guide-metric .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.guide-instructions ul {
+    padding-left: 1.5rem;
+    line-height: 1.6;
+}
+
+.note {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}

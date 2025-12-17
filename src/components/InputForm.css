@@ -1,0 +1,76 @@
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.input-row .input-group {
+  flex: 1;
+}
+
+label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+input, select {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+input:focus, select:focus {
+  outline: 2px solid var(--accent-color);
+  border-color: transparent;
+}
+
+.settings-group {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.settings-group h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.calculate-btn {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.calculate-btn:hover {
+  background: var(--accent-hover);
+}
+
+small {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
