@@ -1,22 +1,40 @@
 .blueprint-container {
-    background: white;
+    background-color: var(--bg-card);
     padding: 1rem;
     border-radius: 8px;
-    margin-top: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-top: 1rem;
     text-align: center;
-    overflow: hidden;
+    overflow: hidden; /* Ensure SVG doesn't overflow container */
+    border: 1px solid var(--border-color);
+    position: relative; /* For zoom controls if added */
 }
 
 .stair-svg {
-    max-width: 100%;
+    width: 100%; /* Changed from max-width to width to work better with zoom */
     height: auto;
-    max-height: 400px; /* Limit height on mobile */
-    background: #f9f9f9;
-    border: 1px solid #eee;
+    max-height: 50vh;
+    /* border: 1px dashed var(--border-color); */ /* Removed border to look cleaner with zoom */
+    background-color: var(--bg-main); /* Slight contrast against card */
+    cursor: grab;
+}
+
+.stair-svg:active {
+    cursor: grabbing;
 }
 
 .blueprint-legend {
     margin-top: 0.5rem;
     color: var(--text-secondary);
+}
+
+h3 {
+    color: var(--text-primary); /* Ensure this uses the correct variable */
+    margin-bottom: 0.5rem;
+    font-weight: 700; /* Bolder for better visibility */
+}
+
+/* Ensure high contrast for the header in light mode if needed */
+[data-theme='light'] .blueprint-container h3 {
+    color: #1a252f; /* Darker than standard text-primary */
 }
