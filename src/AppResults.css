@@ -20,3 +20,58 @@
     font-weight: bold;
     color: var(--text-primary);
 }
+
+.layout-marks-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color, #ccc);
+}
+
+.layout-marks-section h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.description-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.layout-marks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.mark-item {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--bg-secondary, #f5f5f5);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+/* Dark mode support - implied from memory */
+@media (prefers-color-scheme: dark) {
+    .mark-item {
+        background-color: #2c3e50; /* Dark grayish blue as per memory */
+        color: #ecf0f1;
+    }
+    .layout-marks-section {
+         border-top-color: #444;
+    }
+}
+
+.mark-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.mark-value {
+    font-weight: bold;
+    color: var(--text-primary);
+}
