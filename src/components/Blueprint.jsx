@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 const Blueprint = ({
   risePerStep,
@@ -17,12 +18,6 @@ const Blueprint = ({
 
   // Geometric Calculation
   // 1. Tips Line (Top Edge of Uncut Board)
-  // The "Tips" (Top of Riser, Front of Tread) lie on this line.
-  // Tip 1: (0, TotalRise - Rise)
-  // Tip N: ((N-1)*Run, TotalRise - N*Rise)
-  // Slope = -Rise/Run (in SVG, Y is down, so visually it goes "up" to small Y)
-  // Actually, Slope = (Y2-Y1)/(X2-X1) = (-Rise)/Run.
-
   const theta = Math.atan(risePerStep / runPerStep); // Rake angle
 
   // 2. Bottom Line (Bottom Edge of Uncut Board)
@@ -46,10 +41,6 @@ const Blueprint = ({
 
   // 3. Intersections
   // Intersection with Floor (y = TotalRise)
-  // TotalRise = m(x - pBottomRefX) + pBottomRefY
-  // (TotalRise - pBottomRefY) / m = x - pBottomRefX
-  // x_floor = pBottomRefX + (TotalRise - pBottomRefY) / m
-
   const xFloor = pBottomRefX + (totalRise - pBottomRefY) / m;
 
   // Intersection with Back Vertical (x = TotalRun)
@@ -96,28 +87,35 @@ const Blueprint = ({
   // Floor Line (Back to Start)
   d += ` Z`;
 
-  // Dimensions Lines (Visual helpers)
-
   return (
     <div className="blueprint-container">
       <h3>Stringer Blueprint</h3>
-      <svg viewBox={viewBox} className="stair-svg">
-        <defs>
-            <pattern id="woodPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <line x1="0" y1="0" x2="0" y2="10" stroke="#dcbfa6" strokeWidth="1" />
-            </pattern>
-        </defs>
 
-        {/* Stringer Shape */}
-        <path d={d} fill="url(#woodPattern)" stroke="#8d6e63" strokeWidth="2" />
+      <TransformWrapper
+        initialScale={1}
+        minScale={0.5}
+        maxScale={4}
+        wheel={{ step: 0.1 }}
+      >
+        <TransformComponent wrapperClass="zoom-wrapper" contentClass="zoom-content">
+            <svg viewBox={viewBox} className="stair-svg">
+                <defs>
+                    <pattern id="woodPattern" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <line x1="0" y1="0" x2="0" y2="10" stroke="#dcbfa6" strokeWidth="1" />
+                    </pattern>
+                </defs>
 
-        {/* Outline for clarity */}
-        <path d={d} fill="none" stroke="var(--text-primary)" strokeWidth="1" />
+                {/* Stringer Shape */}
+                <path d={d} fill="url(#woodPattern)" stroke="#8d6e63" strokeWidth="2" />
 
-        {/* Annotations could be added here */}
-      </svg>
+                {/* Outline for clarity */}
+                <path d={d} fill="none" stroke="var(--text-primary)" strokeWidth="1" />
+            </svg>
+        </TransformComponent>
+      </TransformWrapper>
+
       <div className="blueprint-legend">
-        <small>Scale: Not 1:1. Verify all measurements.</small>
+        <small>Scale: Not 1:1. Scroll/Pinch to Zoom. Drag to Pan.</small>
       </div>
     </div>
   );
