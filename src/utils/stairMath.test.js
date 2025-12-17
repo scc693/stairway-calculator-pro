@@ -30,6 +30,20 @@ describe('calculateStairs', () => {
     const result = calculateStairs(30, 40, 30, 40); // 1 step
     expect(result.angleDegrees).toBeCloseTo(36.87, 2);
   });
+
+  it('generates layout marks', () => {
+      // 3-4-5 triangle. Hypotenuse should be 5.
+      // 1 step (Rise 3, Run 4).
+      const result = calculateStairs(3, 4, 3, 4);
+      expect(result.stepHypotenuse).toBe(5);
+      expect(result.layoutMarks).toEqual([5]);
+
+      // 2 steps. Rise 6. Run 4 (Total run = 1 tread * 4).
+      const result2 = calculateStairs(6, 4, 3, 4);
+      expect(result2.numberOfSteps).toBe(2);
+      expect(result2.stepHypotenuse).toBe(5);
+      expect(result2.layoutMarks).toEqual([5, 10]);
+  });
 });
 
 describe('formatDimension', () => {

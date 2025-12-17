@@ -63,6 +63,11 @@ export const calculateStairs = (
   const angleRadians = Math.atan(risePerStep / runPerStep);
   const angleDegrees = angleRadians * (180 / Math.PI);
 
+  // Generate layout marks (cumulative hypotenuse distances)
+  const layoutMarks = Array.from({ length: numberOfSteps }, (_, i) => {
+    return (i + 1) * stepHypotenuse;
+  });
+
   return {
     numberOfSteps, // Risers
     numberOfTreads: numberOfSteps - 1,
@@ -73,7 +78,8 @@ export const calculateStairs = (
     stringerLength,
     angleRadians,
     angleDegrees,
-    stepHypotenuse
+    stepHypotenuse,
+    layoutMarks
   };
 };
 

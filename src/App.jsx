@@ -99,6 +99,19 @@ function App() {
                     <span>{formatDimension(results.stringerLength)}</span>
                  </div>
                </div>
+
+               <div className="layout-marks-section">
+                   <h4>Stringer Layout Marks (Cumulative)</h4>
+                   <p className="description-text">Measure along the edge of the stringer board from the bottom.</p>
+                   <div className="layout-marks-grid">
+                       {results.layoutMarks.map((mark, index) => (
+                           <div key={index} className="mark-item">
+                               <span className="mark-label">Step {index + 1}:</span>
+                               <span className="mark-value">{formatDimension(mark)}</span>
+                           </div>
+                       ))}
+                   </div>
+               </div>
             </div>
 
             <Blueprint

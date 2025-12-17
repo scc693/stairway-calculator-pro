@@ -59,6 +59,36 @@ export const generatePDF = async (results, includeBlueprint = false) => {
     doc.text(`Rise Setting (Tongue): ${results.risePerStep.toFixed(3)}"`, 20, y);
     y += lineHeight;
     doc.text(`Run Setting (Body): ${results.runPerStep.toFixed(3)}"`, 20, y);
+    y += 10;
+
+    // Layout Marks
+    if (y > 250) {
+        doc.addPage();
+        y = 20;
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Stringer Layout Marks", 20, y);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(100);
+    doc.text("(Cumulative from bottom)", 80, y);
+    doc.setTextColor(0);
+    y += lineHeight;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+
+    if (results.layoutMarks && results.layoutMarks.length > 0) {
+        results.layoutMarks.forEach((mark, index) => {
+            if (y > 270) {
+                doc.addPage();
+                y = 20;
+            }
+            doc.text(`Step ${index + 1}:`, 20, y);
+            doc.text(formatDimension(mark), 60, y);
+            y += 8;
+        });
+    }
 
     // Footer
     const date = new Date().toLocaleDateString();
