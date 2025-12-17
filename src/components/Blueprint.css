@@ -1,22 +1,36 @@
 .blueprint-container {
-    background-color: var(--bg-card);
+    background-color: var(--card-bg, white); /* Fallback to white if var invalid */
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     margin-top: 1rem;
     text-align: center;
-    overflow: hidden; /* Ensure SVG doesn't overflow container */
+    overflow: hidden;
     border: 1px solid var(--border-color);
-    position: relative; /* For zoom controls if added */
+    position: relative;
+    /* Ensure container has enough height/structure for the zoom wrapper */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Force the wrapper to be flexible */
+.zoom-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 300px; /* Ensure a minimum height for the touch area */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .stair-svg {
-    width: 100%; /* Changed from max-width to width to work better with zoom */
+    width: 100%;
     height: auto;
-    max-height: 50vh;
-    /* border: 1px dashed var(--border-color); */ /* Removed border to look cleaner with zoom */
-    background-color: var(--bg-main); /* Slight contrast against card */
+    max-height: 60vh;
+    background-color: var(--bg-color, #f5f7fa); /* Fallback to light grey */
     cursor: grab;
+    /* Important for touch devices to allow the library to handle gestures */
+    touch-action: none;
 }
 
 .stair-svg:active {
@@ -28,13 +42,8 @@
     color: var(--text-secondary);
 }
 
-h3 {
-    color: var(--text-primary); /* Ensure this uses the correct variable */
+.blueprint-container h3 {
+    color: #000000 !important; /* Force black as requested */
     margin-bottom: 0.5rem;
-    font-weight: 700; /* Bolder for better visibility */
-}
-
-/* Ensure high contrast for the header in light mode if needed */
-[data-theme='light'] .blueprint-container h3 {
-    color: #1a252f; /* Darker than standard text-primary */
+    font-weight: 700;
 }
