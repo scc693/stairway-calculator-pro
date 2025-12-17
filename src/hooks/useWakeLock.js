@@ -1,0 +1,37 @@
+import { useEffect, useState } from 'react';
+
+const useWakeLock = () => {
+  const [wakeLock, setWakeLock] = useState(null);
+  const [isSupported, setIsSupported] = useState(false);
+
+  useEffect(() => {
+    if ('wakeLock' in navigator) {
+      setIsSupported(true);
+    }
+  }, []);
+
+  const requestWakeLock = async () => {
+    if (!isSupported) return;
+    try {
+      const lock = await navigator.wakeLock.request('screen');
+      setWakeLock(lock);
+
+      lock.addEventListener('release', () => {
+        setWakeLock(null);
+      });
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  };
+
+  const releaseWakeLock = async () => {
+    if (wakeLock) {
+      await wakeLock.release();
+      setWakeLock(null);
+    }
+  };
+
+  return { isSupported, wakeLock, requestWakeLock, releaseWakeLock };
+};
+
+export default useWakeLock;

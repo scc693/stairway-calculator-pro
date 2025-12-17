@@ -1,0 +1,22 @@
+.blueprint-container {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    overflow: hidden;
+}
+
+.stair-svg {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px; /* Limit height on mobile */
+    background: #f9f9f9;
+    border: 1px solid #eee;
+}
+
+.blueprint-legend {
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+}

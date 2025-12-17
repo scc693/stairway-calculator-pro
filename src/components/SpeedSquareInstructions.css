@@ -1,0 +1,15 @@
+.instruction-block {
+    margin-bottom: 1.5rem;
+}
+
+.instruction-block h5 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.instruction-block p {
+    margin-top: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
