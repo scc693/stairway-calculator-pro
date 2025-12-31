@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 import './InputForm.css';
 
 const InputForm = ({ onCalculate }) => {
@@ -14,12 +15,7 @@ const InputForm = ({ onCalculate }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setInputs(prev => {
-      const newInputs = { ...prev, [name]: value };
-      // Debounce or just pass up immediately?
-      // For now, let's pass immediately but maybe convert to numbers
-      return newInputs;
-    });
+    setInputs(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -129,6 +125,10 @@ const InputForm = ({ onCalculate }) => {
       <button type="submit" className="calculate-btn">Calculate</button>
     </form>
   );
+};
+
+InputForm.propTypes = {
+  onCalculate: PropTypes.func.isRequired
 };
 
 export default InputForm;

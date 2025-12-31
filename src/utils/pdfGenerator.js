@@ -1,8 +1,12 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { formatDimension } from './stairMath';
 
 export const generatePDF = async (results, includeBlueprint = false) => {
+    // Lazy load PDF libraries to reduce initial bundle size
+    const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas')
+    ]);
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -101,18 +105,13 @@ export const generatePDF = async (results, includeBlueprint = false) => {
         const blueprintElement = document.querySelector('.stair-svg');
         if (blueprintElement) {
              try {
-                // We need to capture the SVG. html2canvas works best if we wrap it or capture the container
-                // But the container has other stuff. Let's capture the SVG itself.
-                // Note: html2canvas has issues with raw SVGs sometimes.
-                // Alternative: Convert SVG to canvas manually or use html2canvas on the parent div
-
                 // Add a new page for the blueprint
                 doc.addPage();
                 doc.setFontSize(16);
                 doc.text("Stringer Blueprint", pageWidth / 2, 20, { align: 'center' });
 
                 const canvas = await html2canvas(blueprintElement.parentElement, {
-                    scale: 2, // higher resolution
+                    scale: 2,
                     backgroundColor: '#ffffff'
                 });
 
@@ -124,10 +123,17 @@ export const generatePDF = async (results, includeBlueprint = false) => {
                 doc.addImage(imgData, 'PNG', 20, 30, pdfWidth, pdfHeight);
              } catch (e) {
                  console.error("Failed to capture blueprint", e);
+                 alert("Warning: Blueprint could not be included in the PDF. The cut list data has been saved successfully.");
              }
         }
     }
 
     // Save
-    doc.save("stair-cut-list.pdf");
+    try {
+        doc.save("stair-cut-list.pdf");
+    } catch (e) {
+        console.error("Failed to save PDF", e);
+        alert("Error: Failed to generate PDF. Please try again.");
+        throw e;
+    }
 };
