@@ -16,9 +16,11 @@ const useWakeLock = () => {
       const lock = await navigator.wakeLock.request('screen');
       setWakeLock(lock);
 
-      lock.addEventListener('release', () => {
+      const handleRelease = () => {
         setWakeLock(null);
-      });
+      };
+
+      lock.addEventListener('release', handleRelease);
     } catch (err) {
       console.error(`${err.name}, ${err.message}`);
     }
@@ -30,6 +32,14 @@ const useWakeLock = () => {
       setWakeLock(null);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (wakeLock) {
+        wakeLock.release().catch(() => {});
+      }
+    };
+  }, [wakeLock]);
 
   return { isSupported, wakeLock, requestWakeLock, releaseWakeLock };
 };

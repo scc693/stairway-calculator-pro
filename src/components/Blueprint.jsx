@@ -1,6 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const Blueprint = ({
   risePerStep,
@@ -126,9 +125,7 @@ Blueprint.propTypes = {
   risePerStep: PropTypes.number.isRequired,
   runPerStep: PropTypes.number.isRequired,
   numberOfSteps: PropTypes.number.isRequired,
-  stringerWidth: PropTypes.number,
-  treadThickness: PropTypes.number,
-  riserThickness: PropTypes.number
+  stringerWidth: PropTypes.number
 };
 
 export default Blueprint;
