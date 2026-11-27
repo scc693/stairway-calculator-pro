@@ -2,94 +2,47 @@ import { useState } from 'react';
 import InputForm from './components/InputForm';
 import Blueprint from './components/Blueprint';
 import SpeedSquare from './components/SpeedSquare';
+import SavedCalculations from './components/SavedCalculations';
 import InstallPrompt from './components/InstallPrompt';
-import { calculateStairs, formatDimension } from './utils/stairMath';
+import { calculateStairPlan, formatDimension } from './utils/stairMath';
 import useWakeLock from './hooks/useWakeLock';
 import './index.css';
 import './AppHeader.css';
+import './AppResults.css';
 import './components/Blueprint.css';
 
 function App() {
-  const [results, setResults] = useState(null);
+  const [calculation, setCalculation] = useState(null);
+  const [loadedFields, setLoadedFields] = useState(null);
+  const [error, setError] = useState('');
+  const results = calculation?.results;
   const { isSupported, wakeLock, requestWakeLock, releaseWakeLock } = useWakeLock();
   const [includeBlueprintInPDF, setIncludeBlueprintInPDF] = useState(true);
 
   const handleGeneratePDF = async () => {
-    const { generatePDF } = await import('./utils/pdfGenerator');
-    await generatePDF(results, includeBlueprintInPDF);
+    try {
+      const { generatePDF } = await import('./utils/pdfGenerator');
+      await generatePDF(calculation, includeBlueprintInPDF);
+    } catch {
+      setError('PDF export failed. Please try again.');
+    }
   };
 
-  const handleCalculate = (inputs) => {
-    const totalRise = parseFloat(inputs.totalRise);
-    const totalRun = inputs.totalRun ? parseFloat(inputs.totalRun) : 0;
-    const targetStepRise = parseFloat(inputs.targetStepRise);
-    const targetStepRun = parseFloat(inputs.targetStepRun);
-    const treadThickness = parseFloat(inputs.treadThickness);
-    const riserThickness = parseFloat(inputs.riserThickness);
-    const stringerWidth = parseFloat(inputs.stringerWidth);
-
-    // Comprehensive input validation
-    const errors = [];
-
-    if (isNaN(totalRise) || totalRise <= 0) {
-      errors.push("Total Rise must be greater than 0");
-    } else if (totalRise > 300) {
-      errors.push("Total Rise seems too large (max 300 inches)");
+  const handleCalculate = (fields) => {
+    const inputs = {
+      totalRise: Number(fields.totalRise),
+      totalRun: Number(fields.totalRun),
+      targetStepRise: Number(fields.targetStepRise),
+      targetStepRun: Number(fields.targetStepRun),
+      stringerWidth: Number(fields.stringerWidth)
+    };
+    try {
+      setCalculation({ inputs, results: calculateStairPlan(inputs) });
+      setError('');
+    } catch (err) {
+      setCalculation(null);
+      setError(err.message);
     }
-
-    if (totalRun < 0) {
-      errors.push("Total Run cannot be negative");
-    } else if (totalRun > 500) {
-      errors.push("Total Run seems too large (max 500 inches)");
-    }
-
-    if (isNaN(targetStepRise) || targetStepRise <= 0) {
-      errors.push("Target Step Rise must be greater than 0");
-    } else if (targetStepRise < 4 || targetStepRise > 12) {
-      errors.push("Target Step Rise should be between 4 and 12 inches (building codes)");
-    }
-
-    if (isNaN(targetStepRun) || targetStepRun <= 0) {
-      errors.push("Target Step Run must be greater than 0");
-    } else if (targetStepRun < 7 || targetStepRun > 14) {
-      errors.push("Target Step Run should be between 7 and 14 inches (building codes)");
-    }
-
-    if (isNaN(treadThickness) || treadThickness < 0) {
-      errors.push("Tread Thickness cannot be negative");
-    } else if (treadThickness > 5) {
-      errors.push("Tread Thickness seems too large (max 5 inches)");
-    }
-
-    if (isNaN(riserThickness) || riserThickness < 0) {
-      errors.push("Riser Thickness cannot be negative");
-    } else if (riserThickness > 5) {
-      errors.push("Riser Thickness seems too large (max 5 inches)");
-    }
-
-    if (isNaN(stringerWidth) || stringerWidth <= 0) {
-      errors.push("Stringer Width must be greater than 0");
-    } else if (stringerWidth < 5 || stringerWidth > 15) {
-      errors.push("Stringer Width should be between 5 and 15 inches");
-    }
-
-    if (errors.length > 0) {
-      alert("Validation Errors:\n\n" + errors.join("\n"));
-      return;
-    }
-
-    const calcResults = calculateStairs(
-      totalRise,
-      totalRun,
-      targetStepRise,
-      targetStepRun,
-      treadThickness,
-      riserThickness,
-      stringerWidth
-    );
-
-    // Add inputs to results for passing to blueprint
-    setResults({ ...calcResults, ...inputs });
   };
 
   return (
@@ -100,7 +53,8 @@ function App() {
       </header>
 
       <main className="app-content">
-        <InputForm onCalculate={handleCalculate} />
+        <InputForm onCalculate={handleCalculate} loadedFields={loadedFields} />
+        {error && <p role="alert">{error}</p>}
 
         {results && (
           <>
@@ -167,7 +121,7 @@ function App() {
                 risePerStep={results.risePerStep}
                 runPerStep={results.runPerStep}
                 numberOfSteps={results.numberOfSteps}
-                stringerWidth={parseFloat(results.stringerWidth)}
+                stringerWidth={calculation.inputs.stringerWidth}
             />
 
             <SpeedSquare
@@ -176,6 +130,12 @@ function App() {
                 runPerStep={results.runPerStep}
             />
           </>
+        )}
+        {window.location.hostname === 'stairs.clearteck.org' && (
+          <SavedCalculations inputs={calculation?.inputs} onLoad={(saved) => {
+            setLoadedFields({ ...saved, totalRun: saved.totalRun || '' });
+            handleCalculate(saved);
+          }} />
         )}
         <InstallPrompt />
       </main>

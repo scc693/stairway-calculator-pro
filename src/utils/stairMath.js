@@ -1,3 +1,50 @@
+export const stairLimits = {
+  rise: { min: 4, max: 12 },
+  run: { min: 7, max: 14 }
+};
+
+const within = (value, { min, max }) =>
+  Number.isFinite(value) && value >= min && value <= max;
+
+export function calculateStairPlan(inputs) {
+  const { totalRise, totalRun, targetStepRise, targetStepRun, stringerWidth } = inputs;
+  if (!within(totalRise, { min: stairLimits.rise.min * 2, max: 300 })) {
+    throw new Error('Enter a total rise of 8 to 300 inches. This calculator requires at least two risers.');
+  }
+  if (!within(totalRun, { min: 0, max: 500 })) {
+    throw new Error('Enter a total run of 0 to 500 inches. Use 0 for automatic run.');
+  }
+  if (!within(targetStepRise, stairLimits.rise) || !within(targetStepRun, stairLimits.run)) {
+    throw new Error('Enter a target rise of 4 to 12 inches and a target run of 7 to 14 inches.');
+  }
+  if (![7.25, 9.25, 11.25].includes(stringerWidth)) {
+    throw new Error('Select one of the available stringer widths.');
+  }
+
+  const preferred = Math.round(totalRise / targetStepRise);
+  const candidates = [];
+  for (let risers = 2; risers <= Math.floor(totalRise / stairLimits.rise.min); risers++) {
+    const rise = totalRise / risers;
+    const run = totalRun === 0 ? targetStepRun : totalRun / (risers - 1);
+    if (within(rise, stairLimits.rise) && within(run, stairLimits.run)) {
+      candidates.push({ risers, rise, run });
+    }
+  }
+
+  const candidate = candidates
+    .sort((a, b) => Math.abs(a.risers - preferred) - Math.abs(b.risers - preferred))
+    .find(({ rise, run }) => stringerWidth > (rise * run) / Math.hypot(rise, run));
+
+  if (!candidate) {
+    if (candidates.length === 0) {
+      throw new Error('No layout fits the calculator’s rise and run limits. Adjust the total dimensions.');
+    }
+    throw new Error('The selected board is too narrow for the available layouts. Select wider stock or adjust the dimensions.');
+  }
+
+  return calculateStairs(totalRise, totalRun, candidate.rise, targetStepRun);
+}
+
 export const calculateStairs = (
   totalRise,
   totalRun,

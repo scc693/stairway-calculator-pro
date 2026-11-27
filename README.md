@@ -1,6 +1,6 @@
 # Dundas Specialties Stair Calculator
 
-A professional-grade Progressive Web App (PWA) designed for carpenters and DIY enthusiasts to calculate stair stringer measurements, generate cut lists, and view dynamic blueprints.
+A Progressive Web App (PWA) designed for carpenters and DIY enthusiasts to calculate stair stringer measurements, generate cut lists, and view dynamic blueprints.
 
 ## Features
 
@@ -11,6 +11,12 @@ A professional-grade Progressive Web App (PWA) designed for carpenters and DIY e
 *   **PDF Export**: Download blueprints and cut lists as PDF files.
 *   **Theme Support**: Dynamic Light and Dark modes (Dark mode features a specialized dark grayish-blue palette).
 *   **PWA Capabilities**: Installable on mobile and desktop devices for offline access.
+
+## Saved calculations
+
+Visit [stairs.clearteck.org](https://stairs.clearteck.org/) and sign in with an email verification code to save and reopen calculations. Each account sees its own saved calculations. The calculator also runs without signing in.
+
+The cut list models bare stringer geometry with the upper floor as the final riser. Finished tread and riser allowances need to be worked out separately. The app checks its dimensional limits and whether a notch crosses the edge of the board. Verify stock strength, connections, and local requirements separately before cutting.
 
 ## Tech Stack
 
@@ -24,8 +30,8 @@ A professional-grade Progressive Web App (PWA) designed for carpenters and DIY e
 
 ### Prerequisites
 
-*   Node.js (v16 or higher)
-*   npm (v7 or higher)
+*   Node.js 22.12+ or Node.js 24 (CI uses Node.js 24)
+*   npm (bundled with Node.js)
 
 ### Installation
 
@@ -37,7 +43,7 @@ A professional-grade Progressive Web App (PWA) designed for carpenters and DIY e
 
 2.  Install dependencies:
     ```bash
-    npm install
+    npm ci
     ```
 
 ### Running Locally
@@ -68,88 +74,12 @@ npm run build
 
 The build artifacts will be stored in the `dist/` directory.
 
-## Hosting on GitHub Pages
+## Cloudflare Pages deployment
 
-This project is configured to be easily hosted on GitHub Pages. Since the `base` path in `vite.config.js` is set to relative (`./`), the app can be deployed to a subpath without issues.
+Run `npm run build:pages` and upload `dist/` as an advanced-mode Pages deployment to the `stairway-calculator-pro` project. The production domain is `stairs.clearteck.org`. The build includes `_worker.js` and `_routes.json` for the API.
 
-### Method 1: Using the `gh-pages` package (Recommended for manual deploys)
-
-1.  Install the `gh-pages` package as a developer dependency:
-    ```bash
-    npm install gh-pages --save-dev
-    ```
-
-2.  Add a `deploy` script to your `package.json`:
-    ```json
-    "scripts": {
-      "predeploy": "npm run build",
-      "deploy": "gh-pages -d dist",
-      ...
-    }
-    ```
-
-3.  Deploy the app:
-    ```bash
-    npm run deploy
-    ```
-
-    This command will build your project and push the contents of the `dist` folder to a `gh-pages` branch on your repository. GitHub Pages should automatically enable for that branch.
-
-### Method 2: Using GitHub Actions (Automated)
-
-1.  Go to your repository on GitHub.
-2.  Navigate to **Settings** > **Pages**.
-3.  Under **Build and deployment**, select **GitHub Actions** as the source.
-4.  GitHub will suggest a workflow for Vite or Static HTML. You can create a file named `.github/workflows/deploy.yml` with the following content:
-
-    ```yaml
-    name: Deploy to GitHub Pages
-
-    on:
-      push:
-        branches: [ main ] # or master
-
-    jobs:
-      build:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-
-          - name: Set up Node
-            uses: actions/setup-node@v4
-            with:
-              node-version: 20
-              cache: 'npm'
-
-          - name: Install dependencies
-            run: npm install
-
-          - name: Build
-            run: npm run build
-
-          - name: Upload artifact
-            uses: actions/upload-pages-artifact@v3
-            with:
-              path: ./dist
-
-      deploy:
-        environment:
-          name: github-pages
-          url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-latest
-        needs: build
-        permissions:
-          pages: write
-          id-token: write
-        steps:
-          - name: Deploy to GitHub Pages
-            id: deployment
-            uses: actions/deploy-pages@v4
-    ```
-
-5.  Commit and push this file. Every time you push to the `main` branch, the action will automatically build and deploy your site.
+Bind the production D1 database as `DB` and apply the SQL files in `cloudflare/migrations/` in order. Set `ACCESS_AUD` to the audience of the Cloudflare Access application covering `stairs.clearteck.org/api/*`. The API verifies the Access JWT against the Clearteck team’s signing keys and applies ownership checks in D1. The static calculator runs locally with `npm run dev`.
 
 ## License
 
-ISC
+MIT

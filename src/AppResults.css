@@ -75,3 +75,17 @@
     font-weight: bold;
     color: var(--text-primary);
 }
+
+.saved-table {
+  width: 100%;
+  margin-top: 1rem;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.saved-table th,
+.saved-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  overflow-wrap: anywhere;
+}

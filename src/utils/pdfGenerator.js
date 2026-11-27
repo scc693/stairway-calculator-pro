@@ -1,6 +1,6 @@
 import { formatDimension } from './stairMath';
 
-export const generatePDF = async (results, includeBlueprint = false) => {
+export const generatePDF = async ({ inputs, results }, includeBlueprint = false) => {
     // Lazy load PDF libraries to reduce initial bundle size
     const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
         import('jspdf'),
@@ -38,8 +38,8 @@ export const generatePDF = async (results, includeBlueprint = false) => {
 
     addLine("Total Rise", `${results.totalRise}"`);
     addLine("Total Run", `${results.totalRun}"`);
-    addLine("Target Rise", `${results.targetStepRise}"`);
-    addLine("Target Run", `${results.targetStepRun}"`);
+    addLine("Target Rise", `${inputs.targetStepRise}"`);
+    addLine("Target Run", `${inputs.targetStepRun}"`);
     y += 5;
 
     doc.setFont("helvetica", "bold");
