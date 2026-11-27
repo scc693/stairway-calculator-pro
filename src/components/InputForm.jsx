@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import './InputForm.css';
 
-const InputForm = ({ onCalculate }) => {
+const InputForm = ({ onCalculate, loadedFields }) => {
   const [inputs, setInputs] = useState({
     totalRise: '',
     totalRun: '',
     targetStepRise: 7.5,
     targetStepRun: 10,
-    stringerWidth: 11.25,
-    treadThickness: 1,
-    riserThickness: 0.75
+    stringerWidth: 11.25
   });
+
+  useEffect(() => {
+    if (loadedFields) setInputs(loadedFields);
+  }, [loadedFields]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,30 +98,7 @@ const InputForm = ({ onCalculate }) => {
           </div>
         </div>
 
-        <div className="input-row">
-          <div className="input-group">
-            <label htmlFor="treadThickness">Tread Thickness</label>
-             <input
-              type="number"
-              id="treadThickness"
-              name="treadThickness"
-              step="0.125"
-              value={inputs.treadThickness}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="riserThickness">Riser Thickness</label>
-             <input
-              type="number"
-              id="riserThickness"
-              name="riserThickness"
-              step="0.125"
-              value={inputs.riserThickness}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
+        <small>Calculator limits are 4–12 inches per rise and 7–14 inches per run. Verify local requirements and finished tread and riser details before cutting.</small>
       </div>
 
       <button type="submit" className="calculate-btn">Calculate</button>
@@ -128,7 +107,8 @@ const InputForm = ({ onCalculate }) => {
 };
 
 InputForm.propTypes = {
-  onCalculate: PropTypes.func.isRequired
+  onCalculate: PropTypes.func.isRequired,
+  loadedFields: PropTypes.object
 };
 
 export default InputForm;

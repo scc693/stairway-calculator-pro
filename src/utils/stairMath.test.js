@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateStairs, formatDimension } from './stairMath';
+import { calculateStairPlan, calculateStairs, formatDimension } from './stairMath';
 
 describe('calculateStairs', () => {
   it('calculates simple standard stairs correctly', () => {
@@ -65,5 +65,39 @@ describe('formatDimension', () => {
 
   it('handles zero', () => {
     expect(formatDimension(0)).toBe('0"');
+  });
+});
+
+describe('calculateStairPlan', () => {
+  const defaults = {
+    totalRise: 108, totalRun: 0, targetStepRise: 7.5, targetStepRun: 10, stringerWidth: 11.25
+  };
+
+  it('preserves the automatic total run', () => {
+    expect(calculateStairPlan(defaults).totalRun).toBe(130);
+  });
+
+  it('adjusts the riser count to fit a short fixed run', () => {
+    const plan = calculateStairPlan({ ...defaults, totalRun: 80 });
+    expect(plan.numberOfSteps).toBe(12);
+    expect(plan.runPerStep).toBeCloseTo(80 / 11);
+  });
+
+  it('rejects a fixed run with no valid layout', () => {
+    expect(() => calculateStairPlan({ ...defaults, totalRun: 50 })).toThrow(/No layout/);
+  });
+
+  it('finds a layout that fits narrow stock', () => {
+    const plan = calculateStairPlan({
+      ...defaults, totalRise: 120, targetStepRise: 12, targetStepRun: 14, stringerWidth: 7.25
+    });
+    expect(plan.numberOfSteps).toBeGreaterThan(10);
+    expect(7.25 - plan.risePerStep * Math.cos(plan.angleRadians)).toBeGreaterThan(0);
+  });
+
+  it('rejects an infeasible notch with the available fixed run', () => {
+    expect(() => calculateStairPlan({
+      ...defaults, totalRise: 23, totalRun: 13, stringerWidth: 7.25
+    })).toThrow(/too narrow/);
   });
 });
