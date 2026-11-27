@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 async function request(path, options) {
   const response = await fetch(`/api/${path}`, { ...options, redirect: 'manual' });
   if (response.type === 'opaqueredirect' || response.status === 401) return null;
+  if (response.status === 403 && !response.headers.get('content-type')?.includes('application/json')) {
+    return null;
+  }
   const body = await response.json();
   if (!response.ok) throw new Error(body.error || 'Could not reach saved calculations.');
   return body;
